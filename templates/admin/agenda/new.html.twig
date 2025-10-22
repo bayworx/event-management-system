@@ -1,0 +1,225 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Add Agenda Item - {{ event.title }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-2">Add Agenda Item</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ path('admin_event_index') }}">Events</a></li>
+                            <li class="breadcrumb-item"><a href="{{ path('admin_event_show', {id: event.id}) }}">{{ event.title }}</a></li>
+                            <li class="breadcrumb-item"><a href="{{ path('admin_agenda_index', {eventId: event.id}) }}">Agenda</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add Item</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    <a href="{{ path('admin_agenda_index', {eventId: event.id}) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Agenda
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-plus me-2"></i>New Agenda Item for {{ event.title }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(form) }}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            {{ form_label(form.title, null, {'label_attr': {'class': 'form-label required'}}) }}
+                                            {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Enter agenda item title...'}}) }}
+                                            {{ form_errors(form.title) }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.itemType, null, {'label_attr': {'class': 'form-label'}}) }}
+                                            {{ form_widget(form.itemType, {'attr': {'class': 'form-select'}}) }}
+                                            {{ form_errors(form.itemType) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.isVisible, null, {'label_attr': {'class': 'form-label'}}) }}
+                                            <div class="form-check form-switch">
+                                                {{ form_widget(form.isVisible, {'attr': {'class': 'form-check-input', 'role': 'switch'}}) }}
+                                                <label class="form-check-label" for="{{ form.isVisible.vars.id }}">
+                                                    Show this item to attendees
+                                                </label>
+                                            </div>
+                                            {{ form_errors(form.isVisible) }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.startTime, null, {'label_attr': {'class': 'form-label'}}) }}
+                                            {{ form_widget(form.startTime, {'attr': {'class': 'form-control'}}) }}
+                                            {{ form_errors(form.startTime) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.endTime, null, {'label_attr': {'class': 'form-label'}}) }}
+                                            {{ form_widget(form.endTime, {'attr': {'class': 'form-control'}}) }}
+                                            {{ form_errors(form.endTime) }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Enter a detailed description...'}}) }}
+                                    {{ form_errors(form.description) }}
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.speaker, null, {'label_attr': {'class': 'form-label'}}) }}
+                                            {{ form_widget(form.speaker, {'attr': {'class': 'form-control', 'placeholder': 'Speaker name...'}}) }}
+                                            {{ form_errors(form.speaker) }}
+                                            <div class="form-text">Use this field for external speakers</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            {{ form_label(form.presenter, null, {'label_attr': {'class': 'form-label'}}) }}
+                                            {{ form_widget(form.presenter, {'attr': {'class': 'form-select'}}) }}
+                                            {{ form_errors(form.presenter) }}
+                                            <div class="form-text">Select from registered presenters</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form_label(form.location, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.location, {'attr': {'class': 'form-control', 'placeholder': 'Room, building, or virtual link...'}}) }}
+                                    {{ form_errors(form.location) }}
+                                </div>
+
+                                <div class="mb-4">
+                                    {{ form_label(form.sortOrder, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.sortOrder, {'attr': {'class': 'form-control', 'min': '0'}}) }}
+                                    {{ form_errors(form.sortOrder) }}
+                                    <div class="form-text">Lower numbers appear first in the agenda</div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ path('admin_agenda_index', {eventId: event.id}) }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i> Create Agenda Item
+                                    </button>
+                                </div>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Tips
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="small">
+                                <h6>Agenda Item Types:</h6>
+                                <ul class="list-unstyled mb-3">
+                                    <li><strong>Presentation:</strong> Main talks or presentations</li>
+                                    <li><strong>Break:</strong> Coffee breaks, lunch, etc.</li>
+                                    <li><strong>Workshop:</strong> Interactive sessions</li>
+                                    <li><strong>Panel:</strong> Panel discussions</li>
+                                    <li><strong>Networking:</strong> Social activities</li>
+                                    <li><strong>Other:</strong> Any other type of activity</li>
+                                </ul>
+
+                                <h6>Speaker vs Presenter:</h6>
+                                <ul class="list-unstyled mb-3">
+                                    <li><strong>Speaker:</strong> External speakers (text field)</li>
+                                    <li><strong>Presenter:</strong> Registered users/presenters</li>
+                                </ul>
+
+                                <h6>Visibility:</h6>
+                                <p class="mb-0">Hidden items won't appear in the public agenda but will still be visible to administrators.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-calendar me-2"></i>Event Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="small">
+                                <p><strong>Event:</strong> {{ event.title }}</p>
+                                <p><strong>Date:</strong> {{ event.startDate|date('F j, Y') }}</p>
+                                <p><strong>Time:</strong> {{ event.startDate|date('g:i A') }}
+                                {% if event.endDate %}
+                                    - {{ event.endDate|date('g:i A') }}
+                                {% endif %}</p>
+                                {% if event.location %}
+                                    <p class="mb-0"><strong>Location:</strong> {{ event.location }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-calculate end time when start time changes
+            const startTimeInput = document.querySelector('input[id$="_startTime"]');
+            const endTimeInput = document.querySelector('input[id$="_endTime"]');
+            
+            if (startTimeInput && endTimeInput) {
+                startTimeInput.addEventListener('change', function() {
+                    if (this.value && !endTimeInput.value) {
+                        // Add 1 hour to start time for default end time
+                        const startDate = new Date(this.value);
+                        startDate.setHours(startDate.getHours() + 1);
+                        
+                        // Format to match datetime-local input format
+                        const year = startDate.getFullYear();
+                        const month = String(startDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(startDate.getDate()).padStart(2, '0');
+                        const hours = String(startDate.getHours()).padStart(2, '0');
+                        const minutes = String(startDate.getMinutes()).padStart(2, '0');
+                        
+                        endTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

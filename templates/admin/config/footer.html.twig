@@ -1,0 +1,313 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Footer Settings - Configuration - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_config_index') }}">Configuration</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Footer Settings</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-layout-text-window-reverse me-2"></i>
+                        <h5 class="card-title mb-0">Footer Settings</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    <!-- General Footer Settings -->
+                    <h6 class="border-bottom pb-2 mb-3">General Settings</h6>
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.footer_text) }}
+                        {{ form_widget(form.footer_text) }}
+                        {{ form_errors(form.footer_text) }}
+                        {% if form.footer_text.vars.help %}
+                            <div class="form-text">{{ form.footer_text.vars.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form_widget(form.footer_show_company_info) }}
+                                    {{ form_label(form.footer_show_company_info) }}
+                                </div>
+                                {{ form_errors(form.footer_show_company_info) }}
+                                {% if form.footer_show_company_info.vars.help %}
+                                    <div class="form-text">{{ form.footer_show_company_info.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    {{ form_widget(form.footer_show_version) }}
+                                    {{ form_label(form.footer_show_version) }}
+                                </div>
+                                {{ form_errors(form.footer_show_version) }}
+                                {% if form.footer_show_version.vars.help %}
+                                    <div class="form-text">{{ form.footer_show_version.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.footer_copyright_text) }}
+                        {{ form_widget(form.footer_copyright_text) }}
+                        {{ form_errors(form.footer_copyright_text) }}
+                        {% if form.footer_copyright_text.vars.help %}
+                            <div class="form-text">{{ form.footer_copyright_text.vars.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Footer Links -->
+                    <h6 class="border-bottom pb-2 mb-3 mt-4">Footer Links</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_link_1_text) }}
+                                {{ form_widget(form.footer_link_1_text) }}
+                                {{ form_errors(form.footer_link_1_text) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_link_1_url) }}
+                                {{ form_widget(form.footer_link_1_url) }}
+                                {{ form_errors(form.footer_link_1_url) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_link_2_text) }}
+                                {{ form_widget(form.footer_link_2_text) }}
+                                {{ form_errors(form.footer_link_2_text) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_link_2_url) }}
+                                {{ form_widget(form.footer_link_2_url) }}
+                                {{ form_errors(form.footer_link_2_url) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_link_3_text) }}
+                                {{ form_widget(form.footer_link_3_text) }}
+                                {{ form_errors(form.footer_link_3_text) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_link_3_url) }}
+                                {{ form_widget(form.footer_link_3_url) }}
+                                {{ form_errors(form.footer_link_3_url) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Media Links -->
+                    <h6 class="border-bottom pb-2 mb-3 mt-4">Social Media Links</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_social_facebook) }}
+                                {{ form_widget(form.footer_social_facebook) }}
+                                {{ form_errors(form.footer_social_facebook) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_social_twitter) }}
+                                {{ form_widget(form.footer_social_twitter) }}
+                                {{ form_errors(form.footer_social_twitter) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_social_linkedin) }}
+                                {{ form_widget(form.footer_social_linkedin) }}
+                                {{ form_errors(form.footer_social_linkedin) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.footer_social_instagram) }}
+                                {{ form_widget(form.footer_social_instagram) }}
+                                {{ form_errors(form.footer_social_instagram) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_config_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Configuration
+                        </a>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-check-lg"></i> Save Footer Settings
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-xl-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> About Footer Settings
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6>Footer Text</h6>
+                    <p class="text-muted small mb-3">
+                        Additional descriptive text that appears in the footer. This could be 
+                        a company tagline, brief description, or other information you want visitors to see.
+                    </p>
+
+                    <h6>Company Information</h6>
+                    <p class="text-muted small mb-3">
+                        Control whether to show the company name and copyright information in the footer.
+                        This uses the company name configured in Company Information settings.
+                    </p>
+
+                    <h6>Custom Copyright</h6>
+                    <p class="text-muted small mb-3">
+                        Override the default copyright text. Leave empty to use auto-generated 
+                        copyright with the current year and company name.
+                    </p>
+
+                    <h6>Footer Links</h6>
+                    <p class="text-muted small mb-3">
+                        Add up to 3 custom links in the footer. Common links include Privacy Policy, 
+                        Terms of Service, Contact Us, About Us, etc.
+                    </p>
+
+                    <h6>Social Media</h6>
+                    <p class="text-muted small mb-3">
+                        Add links to your social media profiles. These will be displayed with 
+                        appropriate icons in the footer.
+                    </p>
+
+                    <div class="alert alert-info small">
+                        <i class="bi bi-lightbulb"></i>
+                        <strong>Tip:</strong> Changes to footer settings will immediately 
+                        affect all public pages of the application.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Preview -->
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-eye"></i> Footer Preview
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="border rounded p-3 bg-light text-center">
+                        <div id="preview-footer-text" class="mb-2 text-muted small">
+                            {{ form.footer_text.vars.data ?: '' }}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div id="preview-copyright" class="text-muted small">
+                                {{ form.footer_copyright_text.vars.data ?: '&copy; ' ~ 'now'|date('Y') ~ ' ' ~ company_config().name }}
+                            </div>
+                            <div id="preview-version" class="text-muted small">
+                                {{ config('app.version', 'v1.0.0') }}
+                            </div>
+                        </div>
+                        <div id="preview-links" class="mt-2">
+                            <!-- Links preview will be populated by JavaScript -->
+                        </div>
+                        <div id="preview-social" class="mt-2">
+                            <!-- Social links preview will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Live preview of footer settings
+        document.addEventListener('DOMContentLoaded', function() {
+            const footerTextInput = document.querySelector('textarea[name="footer_settings[footer_text]"]');
+            const copyrightTextInput = document.querySelector('input[name="footer_settings[footer_copyright_text]"]');
+            const showCompanyCheckbox = document.querySelector('input[name="footer_settings[footer_show_company_info]"]');
+            const showVersionCheckbox = document.querySelector('input[name="footer_settings[footer_show_version]"]');
+            
+            const previewFooterText = document.getElementById('preview-footer-text');
+            const previewCopyright = document.getElementById('preview-copyright');
+            const previewVersion = document.getElementById('preview-version');
+            
+            if (footerTextInput && previewFooterText) {
+                footerTextInput.addEventListener('input', function() {
+                    previewFooterText.textContent = this.value || '';
+                    previewFooterText.style.display = this.value ? 'block' : 'none';
+                });
+            }
+            
+            if (copyrightTextInput && previewCopyright) {
+                copyrightTextInput.addEventListener('input', function() {
+                    const defaultCopyright = '© {{ 'now'|date('Y') }} {{ company_config().name }}';
+                    previewCopyright.innerHTML = this.value || defaultCopyright;
+                });
+            }
+            
+            if (showVersionCheckbox && previewVersion) {
+                showVersionCheckbox.addEventListener('change', function() {
+                    previewVersion.style.display = this.checked ? 'block' : 'none';
+                });
+                // Set initial state
+                previewVersion.style.display = showVersionCheckbox.checked ? 'block' : 'none';
+            }
+            
+            if (showCompanyCheckbox && previewCopyright) {
+                showCompanyCheckbox.addEventListener('change', function() {
+                    previewCopyright.style.display = this.checked ? 'block' : 'none';
+                });
+                // Set initial state
+                previewCopyright.style.display = showCompanyCheckbox.checked ? 'block' : 'none';
+            }
+        });
+    </script>
+{% endblock %}

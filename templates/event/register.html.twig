@@ -1,0 +1,92 @@
+{% extends 'event_base.html.twig' %}
+
+{% block title %}Register for {{ event.title }}{% endblock %}
+
+{% block body %}
+{{ include('_partials/company_logo_header.html.twig') }}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>Register for {{ event.title }}</h1>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Event Details</h5>
+                    <p class="card-text">{{ event.description }}</p>
+                    <ul class="list-unstyled">
+                        <li><strong>Date:</strong> {{ event.startDate|date('F j, Y') }} at {{ event.startDate|date('g:i A') }}</li>
+                        <li><strong>Location:</strong> {{ event.location }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Registration</h5>
+                </div>
+                <div class="card-body">
+                    {% if app.user %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> You are already logged in as {{ app.user.email }}.
+                        </div>
+                    {% else %}
+                        <form method="post" novalidate>
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" value="{{ attendee.name ? attendee.name : '' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" value="{{ attendee.email ? attendee.email : '' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your phone number" value="{{ attendee.phone ? attendee.phone : '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="organization" class="form-label">Organization</label>
+                            <input type="text" id="organization" name="organization" class="form-control" placeholder="Your organization" value="{{ attendee.organization ? attendee.organization : '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="job_title" class="form-label">Job Title</label>
+                            <input type="text" id="job_title" name="job_title" class="form-control" placeholder="Your job title" value="{{ attendee.jobTitle ? attendee.jobTitle : '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes (Optional)</label>
+                            <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Any additional notes or requirements">{{ attendee.notes ? attendee.notes : '' }}</textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-person-plus"></i> Register for Event
+                        </button>
+                        
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if event.files|length > 0 %}
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6>Event Materials</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-muted">
+                            <i class="bi bi-lock"></i> Available after registration
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

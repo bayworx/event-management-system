@@ -1,0 +1,225 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Message: {{ message.subject }}{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-envelope-open"></i> Message Details</h1>
+                <a href="{{ path('attendee_message_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Messages
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Main Message -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h5 class="mb-1">{{ message.subject }}</h5>
+                                    <small class="text-muted">
+                                        To: <strong>{{ message.recipient.name }}</strong> &lt;{{ message.recipient.email }}&gt;
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-{{ message.priorityColor }} mb-2">{{ message.priorityLabel }}</span>
+                                    <br>
+                                    <small class="text-muted">{{ message.sentAt|date('M j, Y \\a\\t g:i A') }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="message-content">
+                                {{ message.content|nl2br }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conversation Thread -->
+                    {% if thread|length > 1 %}
+                        <div class="card">
+                            <div class="card-header">
+                                <h6><i class="bi bi-chat-dots"></i> Conversation Thread</h6>
+                            </div>
+                            <div class="card-body">
+                                {% for msg in thread %}
+                                    {% if msg.id != message.id %}
+                                        <div class="border-start border-3 border-{{ msg.priorityColor }} ps-3 mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div>
+                                                    <strong>{{ msg.subject }}</strong>
+                                                    {% if msg.isReply %}
+                                                        <span class="badge bg-info">Reply</span>
+                                                    {% endif %}
+                                                </div>
+                                                <small class="text-muted">{{ msg.sentAt|date('M j, Y g:i A') }}</small>
+                                            </div>
+                                            <div class="mb-2">
+                                                <small class="text-muted">
+                                                    {% if msg.sender == message.sender %}
+                                                        From: You
+                                                    {% else %}
+                                                        From: {{ msg.sender.name }} (Administrator)
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                            <div class="message-content">
+                                                {{ msg.content|nl2br }}
+                                            </div>
+                                            {% if msg.readAt %}
+                                                <div class="mt-2">
+                                                    <small class="text-success">
+                                                        <i class="bi bi-check2"></i> Read {{ msg.readAt|date('M j, g:i A') }}
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        {% if not loop.last %}
+                                            <hr>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Message Status -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6><i class="bi bi-info-circle"></i> Message Status</h6>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">Status:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-{{ message.priorityColor }}">{{ message.statusLabel }}</span>
+                                </dd>
+
+                                <dt class="col-sm-4">Priority:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-{{ message.priorityColor }}">{{ message.priorityLabel }}</span>
+                                </dd>
+
+                                <dt class="col-sm-4">Sent:</dt>
+                                <dd class="col-sm-8">{{ message.sentAt|date('M j, Y \\a\\t g:i A') }}</dd>
+
+                                {% if message.readAt %}
+                                    <dt class="col-sm-4">Read:</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="text-success">
+                                            <i class="bi bi-check2"></i> {{ message.readAt|date('M j, Y \\a\\t g:i A') }}
+                                        </span>
+                                    </dd>
+                                {% else %}
+                                    <dt class="col-sm-4">Read:</dt>
+                                    <dd class="col-sm-8">
+                                        <span class="text-muted">
+                                            <i class="bi bi-clock"></i> Not yet read
+                                        </span>
+                                    </dd>
+                                {% endif %}
+
+                                {% if message.isReply and message.replyTo %}
+                                    <dt class="col-sm-4">Reply to:</dt>
+                                    <dd class="col-sm-8">
+                                        {{ message.replyTo.subject }}
+                                    </dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Recipient Info -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6><i class="bi bi-person-gear"></i> Administrator</h6>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">Name:</dt>
+                                <dd class="col-sm-8">{{ message.recipient.name }}</dd>
+
+                                <dt class="col-sm-4">Email:</dt>
+                                <dd class="col-sm-8">
+                                    <a href="mailto:{{ message.recipient.email }}">{{ message.recipient.email }}</a>
+                                </dd>
+
+                                {% if message.recipient.department %}
+                                    <dt class="col-sm-4">Department:</dt>
+                                    <dd class="col-sm-8">{{ message.recipient.department }}</dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Event Info -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6><i class="bi bi-calendar-event"></i> Event</h6>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">Title:</dt>
+                                <dd class="col-sm-8">
+                                    <a href="{{ path('event_show', {slug: message.event.slug}) }}">
+                                        {{ message.event.title }}
+                                    </a>
+                                </dd>
+
+                                <dt class="col-sm-4">Date:</dt>
+                                <dd class="col-sm-8">{{ message.event.startDate|date('M j, Y') }}</dd>
+
+                                {% if message.event.location %}
+                                    <dt class="col-sm-4">Location:</dt>
+                                    <dd class="col-sm-8">{{ message.event.location }}</dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="bi bi-gear"></i> Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('attendee_message_contact_admin') }}" class="btn btn-primary">
+                                    <i class="bi bi-plus-lg"></i> Send New Message
+                                </a>
+                                
+                                <a href="mailto:{{ message.recipient.email }}?subject=Re: {{ message.subject|url_encode }}" class="btn btn-outline-info">
+                                    <i class="bi bi-envelope"></i> Email Directly
+                                </a>
+
+                                <a href="{{ path('event_show', {slug: message.event.slug}) }}" class="btn btn-outline-success">
+                                    <i class="bi bi-calendar-event"></i> View Event Details
+                                </a>
+
+                                {% if message.event.hasAgenda %}
+                                    <a href="{{ path('event_agenda', {slug: message.event.slug}) }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-list-ul"></i> View Agenda
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.message-content {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+</style>
+{% endblock %}

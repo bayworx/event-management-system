@@ -1,0 +1,207 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Admin Dashboard - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Dashboard</h1>
+                    <small class="text-muted">Welcome back, {{ admin.name ? admin.name : admin.email }}!</small>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('admin_event_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> New Event
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                            <i class="bi bi-calendar-event"></i>
+                        </div>
+                        <div>
+                            <div class="fs-2 fw-bold text-primary">{{ stats.total_events }}</div>
+                            <div class="text-muted small">Total Events</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                            <i class="bi bi-calendar-plus"></i>
+                        </div>
+                        <div>
+                            <div class="fs-2 fw-bold text-success">{{ stats.upcoming_events }}</div>
+                            <div class="text-muted small">Upcoming Events</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div>
+                            <div class="fs-2 fw-bold text-warning">{{ stats.total_attendees }}</div>
+                            <div class="text-muted small">Total Attendees</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <div>
+                            <div class="fs-2 fw-bold text-info">{{ stats.past_events }}</div>
+                            <div class="text-muted small">Past Events</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Events -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Recent Events</h5>
+                        <a href="{{ path('admin_event_index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if recent_events|length > 0 %}
+                        <div class="list-group list-group-flush">
+                            {% for event in recent_events %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ event.title }}</h6>
+                                        <small class="text-muted">{{ event.startDate|date('M j, Y') }}</small>
+                                    </div>
+                                    <p class="mb-1">
+                                        {{ event.description|slice(0, 100) }}{% if event.description|length > 100 %}...{% endif %}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="bi bi-people"></i> {{ event.attendeesCount }} attendees
+                                            {% if event.location %}
+                                                | <i class="bi bi-geo-alt"></i> {{ event.location }}
+                                            {% endif %}
+                                        </small>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ path('admin_event_show', {'id': event.id}) }}" class="btn btn-outline-primary">View</a>
+                                            <a href="{{ path('admin_event_edit', {'id': event.id}) }}" class="btn btn-outline-secondary">Edit</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                            <h6 class="text-muted mt-2">No recent events</h6>
+                            <p class="text-muted small">Start by creating your first event.</p>
+                            <a href="{{ path('admin_event_new') }}" class="btn btn-primary">Create Event</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('admin_event_new') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create New Event
+                        </a>
+                        <a href="{{ path('admin_attendee_index') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-people"></i> Manage Attendees
+                        </a>
+                        <a href="{{ path('admin_presenter_index') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-person-video3"></i> Manage Presenters
+                        </a>
+                        <a href="{{ path('admin_event_index') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-printer"></i> Event Badges
+                        </a>
+                        <a href="{{ path('admin_event_index') }}" class="btn btn-outline-warning">
+                            <i class="bi bi-calendar2-event"></i> Manage Agendas
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Info -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="card-title mb-0">Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Name</small>
+                        <div>{{ admin.name }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Email</small>
+                        <div>{{ admin.email }}</div>
+                    </div>
+                    {% if admin.department %}
+                    <div class="mb-3">
+                        <small class="text-muted">Department</small>
+                        <div>{{ admin.department }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <small class="text-muted">Role</small>
+                        <div>
+                            {% if admin.isSuperAdmin %}
+                                <span class="badge bg-danger">Super Administrator</span>
+                            {% else %}
+                                <span class="badge bg-primary">Administrator</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if admin.lastLoginAt %}
+                    <div class="mb-0">
+                        <small class="text-muted">Last Login</small>
+                        <div><small>{{ admin.lastLoginAt|date('M j, Y \\a\\t g:i A') }}</small></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

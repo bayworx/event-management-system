@@ -1,0 +1,210 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Presenter Management - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Presenter Management</h1>
+                    <small class="text-muted">Manage your event presenters</small>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('admin_presenter_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Presenter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <label for="search" class="form-label">Search Presenters</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="search" 
+                                   id="search"
+                                   value="{{ search }}" 
+                                   placeholder="Search by name, email, or company">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button type="submit" class="btn btn-outline-primary flex-grow-1">
+                                    <i class="bi bi-search"></i> Search
+                                </button>
+                                <a href="{{ path('admin_presenter_index') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presenters Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {% if pagination.items|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Presenter</th>
+                                        <th>Contact</th>
+                                        <th>Company</th>
+                                        <th>Events</th>
+                                        <th>Created</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for presenter in pagination.items %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if presenter.photo %}
+                                                        <img src="{{ asset('uploads/presenters/' ~ presenter.photo) }}" 
+                                                             alt="{{ presenter.name }}" 
+                                                             class="me-3 rounded-circle" 
+                                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                                             style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                                            <i class="bi bi-person"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div>
+                                                        <div class="fw-semibold">{{ presenter.name }}</div>
+                                                        {% if presenter.title %}
+                                                            <small class="text-muted">{{ presenter.title }}</small>
+                                                        {% endif %}
+                                                        {% if presenter.bio %}
+                                                            <small class="text-muted d-block">
+                                                                {{ presenter.bio|slice(0, 80) }}{% if presenter.bio|length > 80 %}...{% endif %}
+                                                            </small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if presenter.email %}
+                                                    <div>
+                                                        <i class="bi bi-envelope text-muted"></i>
+                                                        <a href="mailto:{{ presenter.email }}" class="text-decoration-none">
+                                                            {{ presenter.email }}
+                                                        </a>
+                                                    </div>
+                                                {% endif %}
+                                                {% if presenter.website %}
+                                                    <div class="mt-1">
+                                                        <i class="bi bi-globe text-muted"></i>
+                                                        <a href="{{ presenter.website }}" target="_blank" class="text-decoration-none">
+                                                            Website
+                                                        </a>
+                                                    </div>
+                                                {% endif %}
+                                                {% if presenter.linkedin %}
+                                                    <div class="mt-1">
+                                                        <i class="bi bi-linkedin text-muted"></i>
+                                                        <a href="{{ presenter.linkedin }}" target="_blank" class="text-decoration-none">
+                                                            LinkedIn
+                                                        </a>
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if presenter.company %}
+                                                    <span class="fw-medium">{{ presenter.company }}</span>
+                                                {% else %}
+                                                    <small class="text-muted">—</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ presenter.eventPresenters|length }}</span>
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">{{ presenter.createdAt|date('M j, Y') }}</small>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{{ path('admin_presenter_show', {'id': presenter.id}) }}" 
+                                                       class="btn btn-outline-secondary" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="View Details">
+                                                        <i class="bi bi-info-circle"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_presenter_edit', {'id': presenter.id}) }}" 
+                                                       class="btn btn-outline-primary" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    
+                                                    <!-- Delete -->
+                                                    <form method="post" 
+                                                          action="{{ path('admin_presenter_delete', {'id': presenter.id}) }}" 
+                                                          class="d-inline">
+                                                        <input type="hidden" 
+                                                               name="_token" 
+                                                               value="{{ csrf_token('delete-' ~ presenter.id) }}">
+                                                        <button type="submit" 
+                                                                class="btn btn-outline-danger" 
+                                                                data-bs-toggle="tooltip" 
+                                                                title="Delete"
+                                                                onclick="return confirm('Are you sure you want to delete this presenter? This action cannot be undone.')">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted small">
+                                {% set currentPageFirstItem = (pagination.currentPageNumber - 1) * pagination.itemNumberPerPage + 1 %}
+                                {% set currentPageLastItem = min(pagination.currentPageNumber * pagination.itemNumberPerPage, pagination.totalItemCount) %}
+                                Showing {{ currentPageFirstItem }} to {{ currentPageLastItem }} of {{ pagination.totalItemCount }} presenters
+                            </div>
+                            {{ knp_pagination_render(pagination) }}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-person-x text-muted" style="font-size: 4rem;"></i>
+                            <h5 class="text-muted mt-3">No presenters found</h5>
+                            <p class="text-muted">No presenters match your current search.</p>
+                            <a href="{{ path('admin_presenter_new') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Add First Presenter
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+{% endblock %}

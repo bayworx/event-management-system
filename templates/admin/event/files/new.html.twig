@@ -1,0 +1,112 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Upload File - {{ event.title }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Upload File</h1>
+                    <small class="text-muted">{{ event.title }}</small>
+                </div>
+                <a href="{{ path('admin_event_show', {'id': event.id}) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Event
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">File Details</h6>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            {{ form_row(form.file) }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            {{ form_row(form.name) }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            {{ form_row(form.description) }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form_row(form.sortOrder) }}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-4 pt-2">
+                                {{ form_widget(form.isActive) }}
+                                {{ form_label(form.isActive) }}
+                                <div class="form-text">{{ form_help(form.isActive) }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{ form_rest(form) }}
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_event_show', {'id': event.id}) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload"></i> Upload File
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> Upload Guidelines
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6>Supported File Types</h6>
+                    <ul class="small mb-3">
+                        <li>Documents: PDF, DOC, DOCX</li>
+                        <li>Spreadsheets: XLS, XLSX</li>
+                        <li>Presentations: PPT, PPTX</li>
+                        <li>Text Files: TXT</li>
+                        <li>Archives: ZIP</li>
+                        <li>Images: JPG, PNG, GIF</li>
+                    </ul>
+
+                    <h6>File Size Limit</h6>
+                    <p class="small mb-3">Maximum file size: <strong>50 MB</strong></p>
+
+                    <h6>Display Name</h6>
+                    <p class="small mb-3">Choose a descriptive name that attendees will see in the file list.</p>
+
+                    <h6>Sort Order</h6>
+                    <p class="small mb-3">Files are displayed in ascending order. Use 0 for highest priority.</p>
+
+                    <div class="alert alert-info">
+                        <small><strong>Note:</strong> Only active files are visible to event attendees.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

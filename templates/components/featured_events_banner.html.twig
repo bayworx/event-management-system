@@ -1,0 +1,89 @@
+{#
+    Featured Events Rotating Banner Component
+    
+    Usage: {{ include('components/featured_events_banner.html.twig', { display_type: 'banner' }) }}
+#}
+<div id="featured-events-banner" class="featured-events-carousel mb-4" data-display-type="{{ display_type|default('banner') }}">
+    <div class="carousel slide" id="featuredEventsCarousel" data-bs-ride="carousel">
+	<!--
+        <div class="carousel-loading d-flex justify-content-center align-items-center" style="min-height: 300px;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading featured events...</span>
+            </div>
+        </div>
+	-->
+        <div class="carousel-inner" style="display: none;"></div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#featuredEventsCarousel" data-bs-slide="prev" style="display: none;">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#featuredEventsCarousel" data-bs-slide="next" style="display: none;">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+
+        <div class="carousel-indicators" style="display: none;"></div>
+    </div>
+
+    <div class="no-featured-events alert alert-info text-center" style="display: none;">
+        <i class="fas fa-info-circle me-2"></i>
+        No featured events available at the moment.
+    </div>
+</div>
+{# Template for individual carousel items (hidden, used by JavaScript) #}
+<template id="featured-event-slide-template">
+    <div class="carousel-item">
+        <div class="featured-event-slide position-relative">
+            <div class="featured-event-image">
+                <img src="" alt="" class="w-100" style="height: 400px; object-fit: cover;">
+                <div class="featured-event-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center" style="background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.3));">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="featured-event-content text-white">
+                                    <h2 class="featured-event-title display-4 fw-bold mb-3"></h2>
+                                    <p class="featured-event-description lead mb-4"></p>
+                                    <div class="featured-event-actions">
+                                        <button type="button" class="btn btn-primary btn-lg featured-event-link">
+                                            <i class="fas fa-external-link-alt me-2"></i>
+                                            <span class="link-text">Learn More</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+{# Card layout template for sidebar/smaller displays #}
+<template id="featured-event-card-template">
+    <div class="featured-event-card card mb-3">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="" alt="" class="featured-event-image card-img h-100" style="object-fit: cover;">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="featured-event-title card-title"></h5>
+                    <p class="featured-event-description card-text"></p>
+                    <button type="button" class="btn btn-primary featured-event-link">
+                        <span class="link-text">Learn More</span>
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const featuredEventsBanner = new FeaturedEventsBanner('featured-events-banner');
+    featuredEventsBanner.init();
+});
+</script>

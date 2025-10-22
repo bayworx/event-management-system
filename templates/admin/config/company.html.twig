@@ -1,0 +1,199 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Company Information - Configuration - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_config_index') }}">Configuration</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Company Information</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-building me-2"></i>
+                        <h5 class="card-title mb-0">Company Information</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.company_name) }}
+                                {{ form_widget(form.company_name) }}
+                                {{ form_errors(form.company_name) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.company_email) }}
+                                {{ form_widget(form.company_email) }}
+                                {{ form_errors(form.company_email) }}
+                                {% if form.company_email.vars.help %}
+                                    <div class="form-text">{{ form.company_email.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.company_description) }}
+                        {{ form_widget(form.company_description) }}
+                        {{ form_errors(form.company_description) }}
+                        {% if form.company_description.vars.help %}
+                            <div class="form-text">{{ form.company_description.vars.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.company_address) }}
+                        {{ form_widget(form.company_address) }}
+                        {{ form_errors(form.company_address) }}
+                        {% if form.company_address.vars.help %}
+                            <div class="form-text">{{ form.company_address.vars.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.company_phone) }}
+                                {{ form_widget(form.company_phone) }}
+                                {{ form_errors(form.company_phone) }}
+                                {% if form.company_phone.vars.help %}
+                                    <div class="form-text">{{ form.company_phone.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.company_website) }}
+                                {{ form_widget(form.company_website) }}
+                                {{ form_errors(form.company_website) }}
+                                {% if form.company_website.vars.help %}
+                                    <div class="form-text">{{ form.company_website.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.company_logo) }}
+                        {% if current_logo %}
+                            <div class="mb-2">
+                                <img src="{{ asset('uploads/' ~ current_logo) }}" 
+                                     alt="Current logo" 
+                                     class="img-thumbnail" 
+                                     style="max-height: 100px;">
+                                <div class="form-text text-success">
+                                    <i class="bi bi-check-circle"></i> Current logo: {{ current_logo }}
+                                </div>
+                            </div>
+                        {% endif %}
+                        {{ form_widget(form.company_logo) }}
+                        {{ form_errors(form.company_logo) }}
+                        {% if form.company_logo.vars.help %}
+                            <div class="form-text">{{ form.company_logo.vars.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_config_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Configuration
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Save Company Information
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-xl-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> About Company Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6>Company Name</h6>
+                    <p class="text-muted small mb-3">
+                        This name will appear in the application header, emails, and footer. 
+                        Choose a name that represents your organization.
+                    </p>
+
+                    <h6>Company Description</h6>
+                    <p class="text-muted small mb-3">
+                        A brief description or tagline that appears in various places throughout 
+                        the application. Keep it concise and professional.
+                    </p>
+
+                    <h6>Contact Information</h6>
+                    <p class="text-muted small mb-3">
+                        Email, phone, and website information will be used in email communications 
+                        and contact forms. The email address will also be used as the default 
+                        reply-to address for system emails.
+                    </p>
+
+                    <h6>Company Logo</h6>
+                    <p class="text-muted small mb-3">
+                        Upload your company logo to personalize the application. The logo should 
+                        be in PNG, JPEG, GIF, or WebP format and no larger than 2MB. For best 
+                        results, use a transparent background PNG with dimensions around 200x60 pixels.
+                    </p>
+
+                    <div class="alert alert-info small">
+                        <i class="bi bi-lightbulb"></i>
+                        <strong>Tip:</strong> Changes to company information will be reflected 
+                        across the entire application, including emails sent to users.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Preview logo before upload
+        document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let preview = document.getElementById('logo-preview');
+                    if (!preview) {
+                        preview = document.createElement('img');
+                        preview.id = 'logo-preview';
+                        preview.className = 'img-thumbnail mt-2';
+                        preview.style.maxHeight = '100px';
+                        e.target.parentNode.appendChild(preview);
+                    }
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+{% endblock %}

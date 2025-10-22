@@ -1,0 +1,25 @@
+{# Company Logo Header - Reusable partial #}
+{% set company = company_config() %}
+{% if company.logo %}
+    <div class="bg-white border-bottom py-3 mb-4 shadow-sm company-logo-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <a href="{{ path('events_list') }}" class="text-decoration-none d-inline-block" title="View all events">
+                        <img src="{{ asset('uploads/' ~ company.logo) }}" 
+                             alt="{{ company.name ?: 'Company Logo' }}" 
+                             class="img-fluid company-logo" 
+                             style="max-height: 80px; height: auto;">
+<!--
+                        {% if company.name %}
+                            <div class="mt-2">
+                                <h6 class="text-muted mb-0 company-name">{{ company.name }}</h6>
+                            </div>
+                        {% endif %}
+-->
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

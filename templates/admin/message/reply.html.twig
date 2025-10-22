@@ -1,0 +1,125 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Reply to: {{ message.subject }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-reply"></i> Reply to Message</h1>
+                <a href="{{ path('admin_message_show', {id: message.id}) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Message
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Reply Form -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Your Reply</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="subject" 
+                                           value="Re: {{ message.subject }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Your Reply *</label>
+                                    <textarea name="content" id="content" class="form-control" 
+                                              rows="8" placeholder="Enter your reply message..." required></textarea>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="bi bi-send"></i> Send Reply
+                                        </button>
+                                        <a href="{{ path('admin_message_show', {id: message.id}) }}" class="btn btn-outline-secondary">
+                                            Cancel
+                                        </a>
+                                    </div>
+                                    <small class="text-muted align-self-end">
+                                        Replying to: {{ message.sender.name }} &lt;{{ message.sender.email }}&gt;
+                                    </small>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Original Message -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="bi bi-envelope"></i> Original Message</h6>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-3">
+                                <dt class="col-sm-4">From:</dt>
+                                <dd class="col-sm-8">{{ message.sender.name }}</dd>
+
+                                <dt class="col-sm-4">Email:</dt>
+                                <dd class="col-sm-8">{{ message.sender.email }}</dd>
+
+                                <dt class="col-sm-4">Event:</dt>
+                                <dd class="col-sm-8">{{ message.event.title }}</dd>
+
+                                <dt class="col-sm-4">Sent:</dt>
+                                <dd class="col-sm-8">{{ message.sentAt|date('M j, Y g:i A') }}</dd>
+
+                                <dt class="col-sm-4">Priority:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-{{ message.priorityColor }}">{{ message.priorityLabel }}</span>
+                                </dd>
+                            </dl>
+
+                            <div class="border rounded p-3 bg-light">
+                                <h6>{{ message.subject }}</h6>
+                                <div class="message-content">
+                                    {{ message.content|nl2br }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reply Guidelines -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h6><i class="bi bi-info-circle"></i> Reply Guidelines</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check text-success"></i> Be professional and courteous</li>
+                                <li><i class="bi bi-check text-success"></i> Address the attendee's concerns directly</li>
+                                <li><i class="bi bi-check text-success"></i> Provide clear and helpful information</li>
+                                <li><i class="bi bi-check text-success"></i> Include next steps if applicable</li>
+                                <li><i class="bi bi-check text-success"></i> Proofread before sending</li>
+                            </ul>
+                            
+                            <div class="mt-3">
+                                <small class="text-muted">
+                                    <strong>Note:</strong> Your reply will be sent as part of the message thread 
+                                    and will be visible to the attendee in their message history.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.message-content {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}

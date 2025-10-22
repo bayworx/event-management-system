@@ -1,0 +1,6 @@
+event_title,title,description,start_date,start_time,end_date,end_time,location
+"Annual Tech Conference","Opening Keynote","Welcome and industry overview","2024-12-15","09:00:00","2024-12-15","10:00:00","Main Hall"
+"Annual Tech Conference","Cloud Computing Workshop","Hands-on workshop on cloud technologies","2024-12-15","10:30:00","2024-12-15","12:00:00","Workshop Room A"
+"Annual Tech Conference","Networking Lunch","Networking opportunity with peers","2024-12-15","12:00:00","2024-12-15","13:30:00","Dining Hall"
+"Annual Tech Conference","AI and Machine Learning Panel","Expert discussion on AI trends","2024-12-15","14:00:00","2024-12-15","15:30:00","Conference Room B"
+"Annual Tech Conference","Closing Remarks","Wrap-up and next steps","2024-12-15","16:00:00","2024-12-15","17:00:00","Main Hall"

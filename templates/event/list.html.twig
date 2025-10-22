@@ -1,0 +1,215 @@
+{% extends 'event_base.html.twig' %}
+
+{% block title %}Events - {{ parent() }}{% endblock %}
+
+{% block body %}
+{{ include('_partials/company_logo_header.html.twig') }}
+
+<div class="container my-4">
+<!--
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-calendar-event"></i> Events</h1>
+            </div>
+        </div>
+    </div>
+-->
+    <!-- View Toggle and Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div class="d-flex flex-wrap gap-2">
+                    <!-- View Toggle -->
+                    <div class="btn-group me-3" role="group" aria-label="View toggle">
+                        <a href="{{ path('events_list', {filter: filter, q: query}) }}" class="btn btn-primary">
+                            <i class="bi bi-list"></i> List
+                        </a>
+                        <a href="{{ path('events_calendar') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-calendar-month"></i> Calendar
+                        </a>
+                    </div>
+                    
+                    <!-- Calendar Subscription -->
+                    <div class="dropdown me-3">
+                        <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-calendar-plus"></i> Subscribe to Calendar
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <h6 class="dropdown-header">
+                                    <i class="bi bi-info-circle"></i> Add events to your calendar
+                                </h6>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('calendar_subscribe') }}" target="_blank">
+                                    <i class="bi bi-download"></i> Download Calendar (.ics)
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="copyToClipboard('{{ path('calendar_feed', [], true) }}'); return false;">
+                                    <i class="bi bi-link-45deg"></i> Copy Calendar Feed URL
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <div class="px-3 py-2">
+                                    <small class="text-muted">
+                                        Use the feed URL to subscribe in:<br>
+                                        • Google Calendar<br>
+                                        • Outlook<br>
+                                        • Apple Calendar<br>
+                                        • Other calendar apps
+                                    </small>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Filter Pills -->
+                    <div class="btn-group" role="group" aria-label="Event filters">
+                        <a href="{{ path('events_list', {filter: 'upcoming'}) }}" 
+                           class="btn {{ filter == 'upcoming' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+                            <i class="bi bi-calendar-plus"></i> Upcoming
+                        </a>
+                        <a href="{{ path('events_list', {filter: 'past'}) }}" 
+                           class="btn {{ filter == 'past' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+                            <i class="bi bi-calendar-check"></i> Past
+                        </a>
+                        <a href="{{ path('events_list', {filter: 'all'}) }}" 
+                           class="btn {{ filter == 'all' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+                            <i class="bi bi-calendar"></i> All
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Search Form -->
+                <form method="get" class="d-flex" style="min-width: 250px;">
+                    <input type="hidden" name="filter" value="{{ filter }}">
+                    <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="Search events...">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    {% if pagination.items|length > 0 %}
+        <div class="row g-4">
+            {% for event in pagination.items %}
+                <div class="col-xl-4 col-lg-6 col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        {% if event.bannerImage %}
+                            <img src="{{ asset('uploads/events/' ~ event.bannerImage) }}" class="card-img-top" alt="{{ event.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <p class="card-text flex-grow-1">
+                                {{ event.description|slice(0, 120) }}{% if event.description|length > 120 %}...{% endif %}
+                            </p>
+                            
+                            <div class="mt-auto">
+                                <div class="d-flex align-items-center mb-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar"></i> {{ event.startDate|date('M j, Y \\a\\t g:i A') }}
+                                    </small>
+                                </div>
+                                {% if event.endDate %}
+                                    <div class="d-flex align-items-center mb-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar-check"></i> Ends: {{ event.endDate|date('M j, Y \\a\\t g:i A') }}
+                                        </small>
+                                    </div>
+                                {% endif %}
+                                {% if event.location %}
+                                    <div class="d-flex align-items-center mb-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-geo-alt"></i> {{ event.location }}
+                                        </small>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-people"></i> {{ event.attendeesCount }} attendee{{ event.attendeesCount != 1 ? 's' : '' }}
+                                        {% if event.maxAttendees %}
+                                            / {{ event.maxAttendees }}
+                                        {% endif %}
+                                    </small>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{{ path('event_show', {slug: event.slug}) }}" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                        {% if event.canAcceptMoreAttendees and event.startDate > date() %}
+                                            <a href="{{ path('event_register', {slug: event.slug}) }}" class="btn btn-success btn-sm">
+                                                <i class="bi bi-person-plus"></i> Register
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if event.startDate < date() %}
+                            <div class="card-footer bg-light">
+                                <small class="text-muted">
+                                    <i class="bi bi-check-circle text-success"></i> Event completed
+                                </small>
+                            </div>
+                        {% elseif not event.canAcceptMoreAttendees %}
+                            <div class="card-footer bg-warning">
+                                <small class="text-dark">
+                                    <i class="bi bi-exclamation-triangle"></i> Event is full
+                                </small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pageCount > 1 %}
+            <div class="d-flex justify-content-center mt-4">
+                {{ knp_pagination_render(pagination, 'KnpPaginatorBundle:Pagination:twitter_bootstrap_v5_pagination.html.twig') }}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            {% if query %}
+                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+                <h3 class="text-muted mt-3">No events found</h3>
+                <p class="text-muted">No events match your search criteria "{{ query }}".</p>
+                <a href="{{ path('events_list', {filter: filter}) }}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> Clear search
+                </a>
+            {% else %}
+                <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+                <h3 class="text-muted mt-3">No events available</h3>
+                {% if filter == 'upcoming' %}
+                    <p class="text-muted">There are no upcoming events at the moment. Check back later!</p>
+                    <a href="{{ path('events_list', {filter: 'all'}) }}" class="btn btn-outline-primary">View all events</a>
+                {% elseif filter == 'past' %}
+                    <p class="text-muted">No past events to display.</p>
+                    <a href="{{ path('events_list', {filter: 'upcoming'}) }}" class="btn btn-outline-primary">View upcoming events</a>
+                {% else %}
+                    <p class="text-muted">No events have been created yet.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/calendar-subscription.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Link - {{ event.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 5px 5px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .event-details {
+            background-color: white;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📅 {{ event.title }}</h1>
+    </div>
+    
+    <div class="content">
+        <h2>Hello {{ attendee.name }}!</h2>
+        
+        <p>You requested access to the <strong>{{ event.title }}</strong> event. Click the button below to securely log in and access event materials:</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ login_url }}" class="button">🔐 Access Event</a>
+        </div>
+        
+        <div class="event-details">
+            <h3>Event Details:</h3>
+            <ul>
+                <li><strong>Title:</strong> {{ event.title }}</li>
+                <li><strong>Date:</strong> {{ event.startDate|date('F j, Y \\a\\t g:i A') }}</li>
+                {% if event.endDate %}
+                    <li><strong>End Date:</strong> {{ event.endDate|date('F j, Y \\a\\t g:i A') }}</li>
+                {% endif %}
+                {% if event.location %}
+                    <li><strong>Location:</strong> {{ event.location }}</li>
+                {% endif %}
+            </ul>
+        </div>
+        
+        <p><strong>Note:</strong> This login link is unique to your email address and will expire after use. If you didn't request this link, you can safely ignore this email.</p>
+        
+        <p>If the button above doesn't work, you can copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; font-family: monospace; background-color: #e9ecef; padding: 10px;">{{ login_url }}</p>
+    </div>
+    
+    <div class="footer">
+        <p>This email was sent automatically by the Event Management System.<br>
+        Please do not reply to this email.</p>
+    </div>
+</body>
+</html>

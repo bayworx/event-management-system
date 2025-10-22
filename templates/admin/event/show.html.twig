@@ -1,0 +1,608 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ event.title }} - Event Details - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Event Details</h1>
+                    <small class="text-muted">{{ event.title }}</small>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('admin_event_edit', {'id': event.id}) }}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                    <a href="{{ path('event_show', {'slug': event.slug}) }}" class="btn btn-outline-info" target="_blank">
+                        <i class="bi bi-eye"></i> Public Page
+                    </a>
+                    
+                    <!-- Print Badges Dropdown -->
+                    <!-- Debug: Presenters: {{ event.eventPresenters|length }}, Attendees: {{ event.attendees|length }} -->
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-printer"></i> Print Badges
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% if event.eventPresenters|length > 0 %}
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('admin_event_presenter_badges', {'id': event.id}) }}" target="_blank">
+                                        <i class="bi bi-person-badge"></i> Presenter Badges ({{ event.eventPresenters|length }})
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <span class="dropdown-item text-muted">
+                                        <i class="bi bi-person-badge"></i> No Presenters Added
+                                    </span>
+                                </li>
+                            {% endif %}
+                            {% if event.attendees|length > 0 %}
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('admin_event_attendee_badges', {'id': event.id}) }}" target="_blank">
+                                        <i class="bi bi-people"></i> Attendee Badges ({{ event.attendees|length }})
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <span class="dropdown-item text-muted">
+                                        <i class="bi bi-people"></i> No Attendees Registered
+                                    </span>
+                                </li>
+                            {% endif %}
+                            {% if event.eventPresenters|length > 0 and event.attendees|length > 0 %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="printAllBadges({{ event.id }})">
+                                        <i class="bi bi-printer-fill"></i> Print All Badges
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('admin_event_presenter_badges', {'id': event.id}) }}" target="_blank">
+                                    <i class="bi bi-eye"></i> Preview Presenter Badges
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ path('admin_event_attendee_badges', {'id': event.id}) }}" target="_blank">
+                                    <i class="bi bi-eye"></i> Preview Attendee Badges
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <a href="{{ path('admin_event_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Events
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Event Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Event Information</h6>
+                </div>
+                <div class="card-body">
+                    {% if event.bannerImage %}
+                        <div class="mb-3">
+                            <img src="{{ asset('uploads/events/' ~ event.bannerImage) }}" 
+                                 alt="{{ event.title }}" 
+                                 class="img-fluid rounded" 
+                                 style="max-height: 300px; width: 100%; object-fit: cover;">
+                        </div>
+                    {% endif %}
+
+                    <h4 class="mb-3">{{ event.title }}</h4>
+                    
+                    {% if event.description %}
+                        <div class="mb-3">
+                            <h6 class="text-muted">Description</h6>
+                            <p>{{ event.description|nl2br }}</p>
+                        </div>
+                    {% endif %}
+
+                    <dl class="row">
+                        <dt class="col-sm-3">Start Date</dt>
+                        <dd class="col-sm-9">
+                            <i class="bi bi-calendar-event text-primary"></i>
+                            {{ event.startDate|date('F j, Y \\a\\t g:i A') }}
+                        </dd>
+
+                        {% if event.endDate %}
+                        <dt class="col-sm-3">End Date</dt>
+                        <dd class="col-sm-9">
+                            <i class="bi bi-calendar-check text-primary"></i>
+                            {{ event.endDate|date('F j, Y \\a\\t g:i A') }}
+                        </dd>
+                        {% endif %}
+
+                        {% if event.location %}
+                        <dt class="col-sm-3">Location</dt>
+                        <dd class="col-sm-9">
+                            <i class="bi bi-geo-alt text-primary"></i>
+                            {{ event.location }}
+                        </dd>
+                        {% endif %}
+
+                        <dt class="col-sm-3">Status</dt>
+                        <dd class="col-sm-9">
+                            {% if event.isActive %}
+                                {% set now = date() %}
+                                {% if event.startDate > now %}
+                                    <span class="badge bg-success">Upcoming</span>
+                                {% elseif event.endDate and event.endDate >= now %}
+                                    <span class="badge bg-primary">Ongoing</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Past</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-3">URL Slug</dt>
+                        <dd class="col-sm-9">
+                            <code>{{ event.slug }}</code>
+                            <a href="{{ path('event_show', {'slug': event.slug}) }}" target="_blank" class="ms-2">
+                                <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Event Presenters -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">Presenters</h6>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ path('admin_event_edit', {'id': event.id}) }}#presenters" class="btn btn-outline-primary">
+                                <i class="bi bi-plus"></i> Manage Presenters
+                            </a>
+                            {% if event.eventPresenters|length > 0 %}
+                                <a href="{{ path('admin_event_presenter_badges', {'id': event.id}) }}" class="btn btn-outline-success" target="_blank">
+                                    <i class="bi bi-printer"></i> Print Badges
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if event.eventPresenters|length > 0 %}
+                        <div class="row g-3">
+                            {% for eventPresenter in event.eventPresenters %}
+                                {% set presenter = eventPresenter.presenter %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex align-items-start p-2 {% if not eventPresenter.isVisible %}bg-light{% endif %} rounded">
+                                        {% if presenter.photo %}
+                                            <img src="{{ asset('uploads/presenters/' ~ presenter.photo) }}" 
+                                                 alt="{{ presenter.name }}" 
+                                                 class="me-3 rounded-circle flex-shrink-0" 
+                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" 
+                                                 style="width: 50px; height: 50px; font-size: 1.2rem;">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1">{{ presenter.name }}</h6>
+                                                    {% if presenter.title and presenter.company %}
+                                                        <small class="text-muted d-block">{{ presenter.title }} at {{ presenter.company }}</small>
+                                                    {% elseif presenter.title %}
+                                                        <small class="text-muted d-block">{{ presenter.title }}</small>
+                                                    {% elseif presenter.company %}
+                                                        <small class="text-muted d-block">{{ presenter.company }}</small>
+                                                    {% endif %}
+                                                    {% if eventPresenter.presentationTitle %}
+                                                        <strong class="d-block mt-1">{{ eventPresenter.presentationTitle }}</strong>
+                                                    {% endif %}
+                                                    {% if eventPresenter.timeRange %}
+                                                        <small class="text-muted d-block">
+                                                            <i class="bi bi-clock"></i> {{ eventPresenter.timeRange }}
+                                                        </small>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="text-end">
+                                                    {% if not eventPresenter.isVisible %}
+                                                        <span class="badge bg-warning small">Hidden</span>
+                                                    {% endif %}
+                                                    <small class="text-muted d-block">Order: {{ eventPresenter.sortOrder }}</small>
+                                                </div>
+                                            </div>
+                                            {% if eventPresenter.presentationDescription %}
+                                                <p class="small text-muted mt-1 mb-0">{{ eventPresenter.presentationDescription|slice(0, 100) }}{% if eventPresenter.presentationDescription|length > 100 %}...{% endif %}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-person-video3 text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No presenters assigned yet</p>
+                            <a href="{{ path('admin_event_edit', {'id': event.id}) }}#presenters" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus"></i> Add Presenter
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Agenda Management -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">Event Agenda</h6>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ path('admin_agenda_index', {'eventId': event.id}) }}" class="btn btn-outline-primary">
+                                <i class="bi bi-calendar-event"></i> Manage Agenda
+                            </a>
+                            <a href="{{ path('admin_agenda_new', {'eventId': event.id}) }}" class="btn btn-outline-success">
+                                <i class="bi bi-plus"></i> Add Item
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if event.agendaItems and event.agendaItems|length > 0 %}
+                        <div class="timeline">
+                            {% for agendaItem in event.agendaItems|slice(0, 5) %}
+                                <div class="d-flex mb-3 {% if not agendaItem.visible %}opacity-50{% endif %}">
+                                    <div class="flex-shrink-0 me-3">
+                                        {% if agendaItem.startTime %}
+                                            <div class="bg-primary text-white rounded px-2 py-1 small text-center" style="min-width: 70px;">
+                                                {{ agendaItem.startTime|date('H:i') }}
+                                            </div>
+                                        {% else %}
+                                            <div class="bg-secondary text-white rounded px-2 py-1 small text-center" style="min-width: 70px;">
+                                                TBD
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">{{ agendaItem.title }}</h6>
+                                                {% if agendaItem.speaker %}
+                                                    <small class="text-muted d-block">
+                                                        <i class="bi bi-person"></i> {{ agendaItem.speaker }}
+                                                    </small>
+                                                {% elseif agendaItem.presenter %}
+                                                    <small class="text-muted d-block">
+                                                        <i class="bi bi-microphone"></i> {{ agendaItem.presenter.name }}
+                                                    </small>
+                                                {% endif %}
+                                                {% if agendaItem.location %}
+                                                    <small class="text-muted d-block">
+                                                        <i class="bi bi-geo-alt"></i> {{ agendaItem.location }}
+                                                    </small>
+                                                {% endif %}
+                                            </div>
+                                            <div class="text-end">
+                                                {% if not agendaItem.visible %}
+                                                    <span class="badge bg-warning small">Hidden</span>
+                                                {% endif %}
+                                                {% if agendaItem.itemType %}
+                                                    <span class="badge bg-info small">{{ agendaItem.itemType|title }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% if agendaItem.description %}
+                                            <p class="small text-muted mt-1 mb-0">{{ agendaItem.description|slice(0, 80) }}{% if agendaItem.description|length > 80 %}...{% endif %}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if event.agendaItems|length > 5 %}
+                            <div class="text-center mt-3">
+                                <a href="{{ path('admin_agenda_index', {'eventId': event.id}) }}" class="btn btn-sm btn-outline-primary">
+                                    View All {{ event.agendaItems|length }} Agenda Items
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No agenda items created yet</p>
+                            <a href="{{ path('admin_agenda_new', {'eventId': event.id}) }}" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus"></i> Create First Agenda Item
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Attendee Management -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">Attendees</h6>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary">
+                                <i class="bi bi-plus"></i> Add Attendee
+                            </button>
+                            <a href="{{ path('admin_attendee_export', {'event': event.id}) }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-download"></i> Export
+                            </a>
+                            {% if event.attendees|length > 0 %}
+                                <div class="btn-group">
+                                    <a href="{{ path('admin_event_attendee_badges', {'id': event.id}) }}" class="btn btn-outline-success" target="_blank">
+                                        <i class="bi bi-printer"></i> Print Badges
+                                    </a>
+                                    <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="visually-hidden">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{{ path('admin_event_attendee_badges', {'id': event.id}) }}" target="_blank">
+                                            <i class="bi bi-printer"></i> Standard Badges (A4)
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="{{ path('admin_event_attendee_badges_zebra', {'id': event.id}) }}" target="_blank">
+                                            <i class="bi bi-qr-code"></i> ZEBRA ZD621 (4" Thermal)
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ path('admin_event_attendee_badges_zebra', {'id': event.id}) }}?format=zpl" target="_blank">
+                                            <i class="bi bi-file-earmark-code"></i> Download ZPL File
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if event.attendeesCount > 0 %}
+                        <div class="row">
+                            {% for attendee in event.attendees|slice(0, 6) %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; border-radius: 50%;">
+                                            {{ attendee.name|slice(0,1)|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="small fw-semibold">{{ attendee.name }}</div>
+                                            <div class="small text-muted">{{ attendee.email }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if event.attendeesCount > 6 %}
+                            <div class="text-center mt-3">
+                                <button class="btn btn-sm btn-outline-primary">
+                                    View All {{ event.attendeesCount }} Attendees
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No attendees registered yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Quick Stats -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-3 mb-3">
+                            <div class="border-end">
+                                <h3 class="text-primary mb-1">{{ event.attendeesCount }}</h3>
+                                <small class="text-muted">Attendees</small>
+                            </div>
+                        </div>
+                        <div class="col-3 mb-3">
+                            <div class="border-end">
+                                <h3 class="text-success mb-1">{{ event.eventPresenters|length }}</h3>
+                                <small class="text-muted">Presenters</small>
+                            </div>
+                        </div>
+                        <div class="col-3 mb-3">
+                            <div class="border-end">
+                                <h3 class="text-warning mb-1">{{ event.agendaItems ? event.agendaItems|length : 0 }}</h3>
+                                <small class="text-muted">Agenda Items</small>
+                            </div>
+                        </div>
+                        <div class="col-3 mb-3">
+                            <h3 class="text-info mb-1">{{ event.files|length }}</h3>
+                            <small class="text-muted">Files</small>
+                        </div>
+                    </div>
+                    
+                    {% if event.maxAttendees %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small>Capacity</small>
+                                <small>{{ event.attendeesCount }}/{{ event.maxAttendees }}</small>
+                            </div>
+                            {% set percentage = (event.attendeesCount / event.maxAttendees * 100)|round %}
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar 
+                                            {% if percentage >= 90 %}bg-danger
+                                            {% elseif percentage >= 70 %}bg-warning
+                                            {% else %}bg-success{% endif %}" 
+                                     style="width: {{ percentage }}%"></div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% set daysSince = date().diff(event.createdAt).days %}
+                    <div class="small text-muted">
+                        <i class="bi bi-calendar-plus"></i> Created {{ daysSince }} days ago
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assigned Administrators -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Administrators</h6>
+                </div>
+                <div class="card-body">
+                    {% if event.administrators|length > 0 %}
+                        <div class="list-group list-group-flush">
+                            {% for admin in event.administrators %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; border-radius: 50%;">
+                                            {{ admin.name|slice(0,1)|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ admin.name }}</div>
+                                            <small class="text-muted">{{ admin.email }}</small>
+                                        </div>
+                                        {% if admin.isSuperAdmin %}
+                                            <div class="ms-auto">
+                                                <span class="badge bg-danger">Super Admin</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-person-x text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No administrators assigned</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Event Files -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">Files</h6>
+                        <a href="{{ path('admin_event_file_new', {'id': event.id}) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-plus"></i> Add File
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if event.files|length > 0 %}
+                        <div class="list-group list-group-flush">
+                            {% for file in event.files|slice(0, 5) %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            {% if file.isImage %}
+                                                <i class="bi bi-file-earmark-image text-success"></i>
+                                            {% elseif file.isPdf %}
+                                                <i class="bi bi-file-earmark-pdf text-danger"></i>
+                                            {% else %}
+                                                <i class="bi bi-file-earmark text-primary"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold">{{ file.name }}</div>
+                                            <small class="text-muted">
+                                                {{ file.originalName }} • {{ file.formattedFileSize }} • {{ file.downloadCount }} downloads
+                                            </small>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if file.isActive %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Inactive</span>
+                                            {% endif %}
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ path('admin_event_file_edit', {'eventId': event.id, 'fileId': file.id}) }}" 
+                                                   class="btn btn-outline-primary" title="Edit">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form action="{{ path('admin_event_file_toggle', {'eventId': event.id, 'fileId': file.id}) }}" 
+                                                      method="post" style="display: inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('toggle-event-file-' ~ file.id) }}">
+                                                    <button type="submit" class="btn btn-outline-{% if file.isActive %}warning{% else %}success{% endif %}" 
+                                                            title="{% if file.isActive %}Deactivate{% else %}Activate{% endif %}">
+                                                        <i class="bi bi-{% if file.isActive %}pause{% else %}play{% endif %}"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if event.files|length > 5 %}
+                            <div class="text-center mt-3">
+                                <button class="btn btn-sm btn-outline-primary">
+                                    View All {{ event.files|length }} Files
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-file-earmark-x text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No files uploaded yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printAllBadges(eventId) {
+    // Open presenter badges in new window
+    const presenterWindow = window.open(`/admin/events/${eventId}/badges/presenters?autoprint=1`, '_blank');
+    
+    // Wait a moment then open attendee badges
+    setTimeout(() => {
+        const attendeeWindow = window.open(`/admin/events/${eventId}/badges/attendees?autoprint=1`, '_blank');
+    }, 1000);
+    
+    // Show notification
+    if (typeof bootstrap !== 'undefined') {
+        const toastContainer = document.querySelector('.toast-container') || (() => {
+            const container = document.createElement('div');
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            document.body.appendChild(container);
+            return container;
+        })();
+        
+        const toastHTML = `
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <i class="bi bi-printer text-success me-2"></i>
+                    <strong class="me-auto">Print Badges</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    Opening presenter and attendee badge print windows...
+                </div>
+            </div>
+        `;
+        
+        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+        const toast = new bootstrap.Toast(toastContainer.lastElementChild);
+        toast.show();
+    }
+}
+</script>
+
+{% endblock %}

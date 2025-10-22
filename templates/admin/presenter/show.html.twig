@@ -1,0 +1,264 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ presenter.name }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">{{ presenter.name }}</h4>
+                            <small class="text-muted">Presenter Details</small>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <a href="{{ path('admin_presenter_edit', {'id': presenter.id}) }}" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <a href="{{ path('admin_presenter_index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Profile Photo and Basic Info -->
+                        <div class="col-md-4 text-center">
+                            {% if presenter.photo %}
+                                <img src="{{ asset('uploads/presenters/' ~ presenter.photo) }}" 
+                                     alt="{{ presenter.name }}" 
+                                     class="img-thumbnail rounded-circle mb-3"
+                                     style="width: 200px; height: 200px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                     style="width: 200px; height: 200px; font-size: 4rem; color: #6c757d;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <h3 class="mb-1">{{ presenter.name }}</h3>
+                            
+                            {% if presenter.title or presenter.company %}
+                                <p class="text-muted mb-3">
+                                    {% if presenter.title and presenter.company %}
+                                        {{ presenter.title }} at {{ presenter.company }}
+                                    {% elseif presenter.title %}
+                                        {{ presenter.title }}
+                                    {% else %}
+                                        {{ presenter.company }}
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+                            
+                            <!-- Contact Links -->
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+                                {% if presenter.email %}
+                                    <a href="mailto:{{ presenter.email }}" 
+                                       class="btn btn-outline-primary btn-sm"
+                                       data-bs-toggle="tooltip"
+                                       title="{{ presenter.email }}">
+                                        <i class="bi bi-envelope"></i>
+                                    </a>
+                                {% endif %}
+                                {% if presenter.website %}
+                                    <a href="{{ presenter.website }}" 
+                                       target="_blank"
+                                       class="btn btn-outline-primary btn-sm"
+                                       data-bs-toggle="tooltip"
+                                       title="Visit Website">
+                                        <i class="bi bi-globe"></i>
+                                    </a>
+                                {% endif %}
+                                {% if presenter.linkedin %}
+                                    <a href="{{ presenter.linkedin }}" 
+                                       target="_blank"
+                                       class="btn btn-outline-primary btn-sm"
+                                       data-bs-toggle="tooltip"
+                                       title="LinkedIn Profile">
+                                        <i class="bi bi-linkedin"></i>
+                                    </a>
+                                {% endif %}
+                                {% if presenter.twitter %}
+                                    <a href="https://twitter.com/{{ presenter.twitter|replace({'@': ''}) }}" 
+                                       target="_blank"
+                                       class="btn btn-outline-primary btn-sm"
+                                       data-bs-toggle="tooltip"
+                                       title="@{{ presenter.twitter|replace({'@': ''}) }}">
+                                        <i class="bi bi-twitter"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Details and Events -->
+                        <div class="col-md-8">
+                            <!-- Biography -->
+                            {% if presenter.bio %}
+                                <div class="mb-4">
+                                    <h5 class="mb-3">
+                                        <i class="bi bi-person-lines-fill text-primary"></i>
+                                        Biography
+                                    </h5>
+                                    <p class="text-muted" style="white-space: pre-line;">{{ presenter.bio }}</p>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Contact Information -->
+                            <div class="mb-4">
+                                <h5 class="mb-3">
+                                    <i class="bi bi-person-rolodex text-primary"></i>
+                                    Contact Information
+                                </h5>
+                                <div class="row">
+                                    {% if presenter.email %}
+                                        <div class="col-md-6 mb-2">
+                                            <strong>Email:</strong><br>
+                                            <a href="mailto:{{ presenter.email }}" class="text-decoration-none">
+                                                {{ presenter.email }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if presenter.website %}
+                                        <div class="col-md-6 mb-2">
+                                            <strong>Website:</strong><br>
+                                            <a href="{{ presenter.website }}" target="_blank" class="text-decoration-none">
+                                                {{ presenter.website }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if presenter.linkedin %}
+                                        <div class="col-md-6 mb-2">
+                                            <strong>LinkedIn:</strong><br>
+                                            <a href="{{ presenter.linkedin }}" target="_blank" class="text-decoration-none">
+                                                LinkedIn Profile
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if presenter.twitter %}
+                                        <div class="col-md-6 mb-2">
+                                            <strong>Twitter:</strong><br>
+                                            <a href="https://twitter.com/{{ presenter.twitter|replace({'@': ''}) }}" 
+                                               target="_blank" class="text-decoration-none">
+                                                @{{ presenter.twitter|replace({'@': ''}) }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Events -->
+                            <div class="mb-4">
+                                <h5 class="mb-3">
+                                    <i class="bi bi-calendar-event text-primary"></i>
+                                    Event Presentations ({{ presenter.eventPresenters|length }})
+                                </h5>
+                                
+                                {% if presenter.eventPresenters|length > 0 %}
+                                    <div class="list-group">
+                                        {% for eventPresenter in presenter.eventPresenters %}
+                                            <div class="list-group-item list-group-item-action">
+                                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6 class="mb-1">
+                                                            <a href="{{ path('admin_event_show', {'id': eventPresenter.event.id}) }}" 
+                                                               class="text-decoration-none">
+                                                                {{ eventPresenter.event.title }}
+                                                            </a>
+                                                        </h6>
+                                                        {% if eventPresenter.presentationTitle %}
+                                                            <p class="mb-1 text-muted">
+                                                                <strong>Presentation:</strong> {{ eventPresenter.presentationTitle }}
+                                                            </p>
+                                                        {% endif %}
+                                                        {% if eventPresenter.presentationDescription %}
+                                                            <p class="mb-1">{{ eventPresenter.presentationDescription }}</p>
+                                                        {% endif %}
+                                                        {% if eventPresenter.timeRange %}
+                                                            <small class="text-muted">
+                                                                <i class="bi bi-clock"></i> {{ eventPresenter.timeRange }}
+                                                            </small>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <small class="text-muted">
+                                                            {{ eventPresenter.event.startDate|date('M j, Y') }}
+                                                        </small>
+                                                        {% if not eventPresenter.isVisible %}
+                                                            <br><span class="badge bg-warning">Hidden</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
+                                        <p class="mt-2">No event presentations yet</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Metadata -->
+                            <div class="row text-muted small">
+                                <div class="col-md-6">
+                                    <strong>Created:</strong> {{ presenter.createdAt|date('M j, Y g:i A') }}
+                                </div>
+                                {% if presenter.updatedAt %}
+                                    <div class="col-md-6">
+                                        <strong>Last Updated:</strong> {{ presenter.updatedAt|date('M j, Y g:i A') }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+
+<style>
+.card-header {
+    padding: 1.5rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+h5 {
+    color: #6c757d;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem !important;
+}
+
+.list-group-item {
+    border-left: none;
+    border-right: none;
+}
+
+.list-group-item:first-child {
+    border-top: none;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+</style>
+{% endblock %}

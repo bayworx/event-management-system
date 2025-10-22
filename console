@@ -1,0 +1,7 @@
+#!/bin/bash
+# Symfony Console wrapper to suppress deprecation warnings
+# Usage: ./console [command] [arguments]
+
+# Set error reporting to exclude deprecation warnings
+export SYMFONY_DEPRECATIONS_HELPER=disabled
+php -c php-no-deprecations.ini bin/console "$@"

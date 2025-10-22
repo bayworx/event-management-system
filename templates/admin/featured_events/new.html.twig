@@ -1,0 +1,216 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}New Featured Event{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Create New Featured Event</h1>
+    <a href="{{ path('admin_featured_events_index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form) }}
+                
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {{ form_row(form.title) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {{ form_row(form.description) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {{ form_row(form.bannerImageFile) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.imageUrl) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.displayType) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.linkUrl) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.linkText) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {{ form_row(form.relatedEvent) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        {{ form_row(form.priority) }}
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-4 pt-2">
+                            {{ form_widget(form.isActive) }}
+                            {{ form_label(form.isActive) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.startDate) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.endDate) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <details class="mb-3">
+                            <summary class="btn btn-outline-secondary">Advanced Settings</summary>
+                            <div class="mt-3">
+                                {{ form_row(form.displaySettings) }}
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                {{ form_rest(form) }}
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('admin_featured_events_index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Create Featured Event
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Tips
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>Image Guidelines</h6>
+                <ul class="small mb-3">
+                    <li>Recommended size: 1200x400px for banners</li>
+                    <li>Use high-quality images</li>
+                    <li>Keep text minimal - add descriptions below</li>
+                    <li>Consider mobile viewing</li>
+                </ul>
+
+                <h6>Priority System</h6>
+                <ul class="small mb-3">
+                    <li>Higher numbers display first (0-100)</li>
+                    <li>Use 80-100 for urgent/important features</li>
+                    <li>Use 50-70 for regular features</li>
+                    <li>Use 20-40 for less important features</li>
+                </ul>
+
+                <h6>Display Types</h6>
+                <ul class="small mb-3">
+                    <li><strong>Banner:</strong> Full-width rotating carousel</li>
+                    <li><strong>Card:</strong> Compact card format</li>
+                    <li><strong>Sidebar:</strong> Vertical sidebar placement</li>
+                    <li><strong>Popup:</strong> Modal/overlay display</li>
+                </ul>
+
+                <h6>Scheduling</h6>
+                <ul class="small">
+                    <li>Leave dates empty for "always active"</li>
+                    <li>Set start date for future campaigns</li>
+                    <li>Set end date to auto-expire</li>
+                    <li>Inactive items won't show regardless of dates</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-eye me-2"></i>Preview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="featured-event-preview" class="border rounded p-3 bg-light">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-image fa-2x mb-2"></i>
+                        <p class="small mb-0">Fill in the form to see a preview</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Simple form preview functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleField = document.getElementById('featured_event_title');
+            const descriptionField = document.getElementById('featured_event_description');
+            const imageUrlField = document.getElementById('featured_event_imageUrl');
+            const linkTextField = document.getElementById('featured_event_linkText');
+            const preview = document.getElementById('featured-event-preview');
+
+            function updatePreview() {
+                const title = titleField.value || 'Featured Event Title';
+                const description = descriptionField.value || 'Featured event description...';
+                const imageUrl = imageUrlField.value;
+                const linkText = linkTextField.value || 'Learn More';
+
+                let previewHtml = '';
+                
+                if (imageUrl) {
+                    previewHtml += `<img src="${imageUrl}" alt="${title}" class="w-100 mb-2 rounded" style="max-height: 150px; object-fit: cover;">`;
+                }
+                
+                previewHtml += `
+                    <h6 class="fw-bold mb-2">${title}</h6>
+                    <p class="small text-muted mb-2">${description}</p>
+                    <button type="button" class="btn btn-primary btn-sm" disabled>
+                        ${linkText}
+                    </button>
+                `;
+                
+                preview.innerHTML = previewHtml;
+            }
+
+            // Update preview on input changes
+            [titleField, descriptionField, imageUrlField, linkTextField].forEach(field => {
+                if (field) {
+                    field.addEventListener('input', updatePreview);
+                }
+            });
+
+            // Initial preview
+            updatePreview();
+        });
+    </script>
+{% endblock %}

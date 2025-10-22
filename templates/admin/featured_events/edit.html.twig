@@ -1,0 +1,271 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Featured Event{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Edit Featured Event</h1>
+        <small class="text-muted">{{ featured_event.title }}</small>
+    </div>
+    <div class="btn-group" role="group">
+        <a href="{{ path('admin_featured_events_show', {id: featured_event.id}) }}" class="btn btn-outline-primary">
+            <i class="fas fa-eye me-2"></i>View
+        </a>
+        <a href="{{ path('admin_featured_events_index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                {{ form_start(form) }}
+                
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {{ form_row(form.title) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {{ form_row(form.description) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {{ form_row(form.bannerImageFile) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.imageUrl) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.displayType) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.linkUrl) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.linkText) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        {{ form_row(form.relatedEvent) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        {{ form_row(form.priority) }}
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-4 pt-2">
+                            {{ form_widget(form.isActive) }}
+                            {{ form_label(form.isActive) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form_row(form.startDate) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.endDate) }}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <details class="mb-3">
+                            <summary class="btn btn-outline-secondary">Advanced Settings</summary>
+                            <div class="mt-3">
+                                {{ form_row(form.displaySettings) }}
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+                {{ form_rest(form) }}
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('admin_featured_events_show', {id: featured_event.id}) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Update Featured Event
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Analytics Card -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Performance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h4 class="mb-1">{{ featured_event.viewCount }}</h4>
+                            <small class="text-muted">Views</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h4 class="mb-1">{{ featured_event.clickCount }}</h4>
+                            <small class="text-muted">Clicks</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="mb-1 {% if featured_event.clickThroughRate > 5 %}text-success{% elseif featured_event.clickThroughRate > 2 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ featured_event.clickThroughRate }}%
+                        </h4>
+                        <small class="text-muted">CTR</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Card -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <strong>Current Status:</strong>
+                    {% if featured_event.isCurrentlyActive %}
+                        <span class="badge bg-success ms-2">Active & Visible</span>
+                    {% elseif featured_event.isActive %}
+                        <span class="badge bg-warning ms-2">Active but Scheduled</span>
+                    {% else %}
+                        <span class="badge bg-danger ms-2">Inactive</span>
+                    {% endif %}
+                </div>
+                
+                {% if featured_event.startDate %}
+                    <div class="mb-2">
+                        <strong>Start Date:</strong><br>
+                        <small>{{ featured_event.startDate|date('M j, Y g:i A') }}</small>
+                    </div>
+                {% endif %}
+                
+                {% if featured_event.endDate %}
+                    <div class="mb-2">
+                        <strong>End Date:</strong><br>
+                        <small>{{ featured_event.endDate|date('M j, Y g:i A') }}</small>
+                        {% if featured_event.endDate < date() %}
+                            <span class="badge bg-warning ms-2">Expired</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div class="mb-2">
+                    <strong>Created:</strong><br>
+                    <small>{{ featured_event.createdAt|date('M j, Y g:i A') }} by {{ featured_event.createdBy.name }}</small>
+                </div>
+
+                {% if featured_event.updatedAt %}
+                    <div>
+                        <strong>Last Updated:</strong><br>
+                        <small>{{ featured_event.updatedAt|date('M j, Y g:i A') }}</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-eye me-2"></i>Current Preview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="featured-event-preview" class="border rounded p-3 bg-light">
+                    {% if featured_event.effectiveBannerImage %}
+                        <img src="{{ featured_event.effectiveBannerImage }}" alt="{{ featured_event.title }}" class="w-100 mb-2 rounded" style="max-height: 150px; object-fit: cover;">
+                    {% endif %}
+                    <h6 class="fw-bold mb-2">{{ featured_event.title }}</h6>
+                    {% if featured_event.description %}
+                        <p class="small text-muted mb-2">{{ featured_event.description }}</p>
+                    {% endif %}
+                    <button type="button" class="btn btn-primary btn-sm" disabled>
+                        {{ featured_event.effectiveLinkText }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Form preview functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleField = document.getElementById('featured_event_title');
+            const descriptionField = document.getElementById('featured_event_description');
+            const imageUrlField = document.getElementById('featured_event_imageUrl');
+            const linkTextField = document.getElementById('featured_event_linkText');
+            const preview = document.getElementById('featured-event-preview');
+
+            function updatePreview() {
+                const title = titleField.value || 'Featured Event Title';
+                const description = descriptionField.value || '';
+                const imageUrl = imageUrlField.value;
+                const linkText = linkTextField.value || 'Learn More';
+
+                let previewHtml = '';
+                
+                if (imageUrl) {
+                    previewHtml += `<img src="${imageUrl}" alt="${title}" class="w-100 mb-2 rounded" style="max-height: 150px; object-fit: cover;">`;
+                }
+                
+                previewHtml += `<h6 class="fw-bold mb-2">${title}</h6>`;
+                
+                if (description) {
+                    previewHtml += `<p class="small text-muted mb-2">${description}</p>`;
+                }
+                
+                previewHtml += `
+                    <button type="button" class="btn btn-primary btn-sm" disabled>
+                        ${linkText}
+                    </button>
+                `;
+                
+                preview.innerHTML = previewHtml;
+            }
+
+            // Update preview on input changes
+            [titleField, descriptionField, imageUrlField, linkTextField].forEach(field => {
+                if (field) {
+                    field.addEventListener('input', updatePreview);
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,298 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ featured_event.title }} - Featured Event{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">{{ featured_event.title }}</h1>
+        <small class="text-muted">Featured Event Details</small>
+    </div>
+    <div class="btn-group" role="group">
+        <a href="{{ path('admin_featured_events_edit', {id: featured_event.id}) }}" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i>Edit
+        </a>
+        <div class="btn-group" role="group">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-cog me-2"></i>Actions
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <form action="{{ path('admin_featured_events_toggle', {id: featured_event.id}) }}" method="post" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-featured-event-' ~ featured_event.id) }}">
+                        <button type="submit" class="dropdown-item">
+                            <i class="fas fa-{% if featured_event.isActive %}pause{% else %}play{% endif %} me-2"></i>
+                            {% if featured_event.isActive %}Deactivate{% else %}Activate{% endif %}
+                        </button>
+                    </form>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form action="{{ path('admin_featured_events_delete', {id: featured_event.id}) }}" method="post" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete-featured-event-' ~ featured_event.id) }}">
+                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this featured event?')">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <a href="{{ path('admin_featured_events_index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Main Content -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-star me-2"></i>Featured Event Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        {% if featured_event.effectiveBannerImage %}
+                            <img src="{{ featured_event.effectiveBannerImage }}" alt="{{ featured_event.title }}" class="img-fluid rounded mb-3" style="max-height: 200px; width: 100%; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" style="height: 200px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h4>{{ featured_event.title }}</h4>
+                        
+                        {% if featured_event.description %}
+                            <p class="text-muted mb-3">{{ featured_event.description }}</p>
+                        {% endif %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-sm-6">
+                                <strong>Display Type:</strong><br>
+                                <span class="badge bg-secondary">{{ featured_event.displayType|title }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <strong>Priority:</strong><br>
+                                <span class="badge bg-info">{{ featured_event.priority }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if featured_event.linkUrl or featured_event.relatedEvent %}
+                            <div class="mb-3">
+                                <strong>Target Link:</strong><br>
+                                {% if featured_event.linkUrl %}
+                                    <a href="{{ featured_event.linkUrl }}" target="_blank" class="text-decoration-none">
+                                        {{ featured_event.linkUrl }} <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                {% elseif featured_event.relatedEvent %}
+                                    <span class="text-muted">Related Event: {{ featured_event.relatedEvent.title }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if featured_event.linkText %}
+                            <div class="mb-3">
+                                <strong>Button Text:</strong><br>
+                                <button type="button" class="btn btn-primary btn-sm" disabled>{{ featured_event.linkText }}</button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduling & Status -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar me-2"></i>Scheduling & Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <strong>Current Status:</strong><br>
+                            {% if featured_event.isCurrentlyActive %}
+                                <span class="badge bg-success fs-6">Active & Visible</span>
+                                <small class="d-block text-muted mt-1">This featured event is currently being displayed to users</small>
+                            {% elseif featured_event.isActive %}
+                                <span class="badge bg-warning fs-6">Active but Scheduled</span>
+                                <small class="d-block text-muted mt-1">Active but waiting for start date or past end date</small>
+                            {% else %}
+                                <span class="badge bg-danger fs-6">Inactive</span>
+                                <small class="d-block text-muted mt-1">This featured event is disabled</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <strong>Display Period:</strong><br>
+                            {% if featured_event.startDate or featured_event.endDate %}
+                                {% if featured_event.startDate %}
+                                    <small><i class="fas fa-play text-success me-1"></i>From: {{ featured_event.startDate|date('M j, Y g:i A') }}</small><br>
+                                {% endif %}
+                                {% if featured_event.endDate %}
+                                    <small><i class="fas fa-stop text-danger me-1"></i>Until: {{ featured_event.endDate|date('M j, Y g:i A') }}</small>
+                                    {% if featured_event.endDate < date() %}
+                                        <span class="badge bg-warning ms-2">Expired</span>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                <small class="text-muted">Always active (when enabled)</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Event -->
+        {% if featured_event.relatedEvent %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-link me-2"></i>Related Event
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ featured_event.relatedEvent.title }}</h6>
+                        <small class="text-muted">
+                            <i class="fas fa-calendar me-1"></i>{{ featured_event.relatedEvent.startDate|date('M j, Y g:i A') }}
+                            {% if featured_event.relatedEvent.location %}
+                                <i class="fas fa-map-marker-alt ms-2 me-1"></i>{{ featured_event.relatedEvent.location }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div>
+                        <a href="{{ path('admin_event_show', {id: featured_event.relatedEvent.id}) }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i>View Event
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Display Settings -->
+        {% if featured_event.displaySettings %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cogs me-2"></i>Advanced Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <pre class="bg-light p-3 rounded"><code>{{ featured_event.displaySettings|json_encode(constant('JSON_PRETTY_PRINT')) }}</code></pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Performance Analytics -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Performance Analytics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h3 class="mb-1 text-primary">{{ featured_event.viewCount }}</h3>
+                            <small class="text-muted">Total Views</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h3 class="mb-1 text-success">{{ featured_event.clickCount }}</h3>
+                            <small class="text-muted">Total Clicks</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="mb-1 {% if featured_event.clickThroughRate > 5 %}text-success{% elseif featured_event.clickThroughRate > 2 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ featured_event.clickThroughRate }}%
+                        </h3>
+                        <small class="text-muted">Click Rate</small>
+                    </div>
+                </div>
+                
+                <div class="progress mb-2" style="height: 8px;">
+                    <div class="progress-bar {% if featured_event.clickThroughRate > 5 %}bg-success{% elseif featured_event.clickThroughRate > 2 %}bg-warning{% else %}bg-danger{% endif %}" 
+                         role="progressbar" 
+                         style="width: {{ min(featured_event.clickThroughRate * 10, 100) }}%">
+                    </div>
+                </div>
+                <small class="text-muted">
+                    CTR Benchmark: >5% Excellent, 2-5% Good, <2% Needs Improvement
+                </small>
+            </div>
+        </div>
+
+        <!-- Meta Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info me-2"></i>Meta Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Created:</strong><br>
+                    <small>{{ featured_event.createdAt|date('M j, Y g:i A') }}</small><br>
+                    <small class="text-muted">by {{ featured_event.createdBy.name }}</small>
+                </div>
+                
+                {% if featured_event.updatedAt %}
+                    <div class="mb-3">
+                        <strong>Last Updated:</strong><br>
+                        <small>{{ featured_event.updatedAt|date('M j, Y g:i A') }}</small>
+                    </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <strong>ID:</strong> <code>{{ featured_event.id }}</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ path('admin_featured_events_edit', {id: featured_event.id}) }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i>Edit Featured Event
+                    </a>
+                    
+                    <form action="{{ path('admin_featured_events_toggle', {id: featured_event.id}) }}" method="post">
+                        <input type="hidden" name="_token" value="{{ csrf_token('toggle-featured-event-' ~ featured_event.id) }}">
+                        <button type="submit" class="btn btn-outline-{% if featured_event.isActive %}warning{% else %}success{% endif %} w-100">
+                            <i class="fas fa-{% if featured_event.isActive %}pause{% else %}play{% endif %} me-2"></i>
+                            {% if featured_event.isActive %}Deactivate{% else %}Activate{% endif %}
+                        </button>
+                    </form>
+                    
+                    {% if featured_event.effectiveLinkUrl %}
+                        <a href="{{ featured_event.effectiveLinkUrl }}" target="_blank" class="btn btn-outline-info">
+                            <i class="fas fa-external-link-alt me-2"></i>Visit Link
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

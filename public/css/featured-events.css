@@ -1,0 +1,343 @@
+/* Featured Events Banner Styles */
+
+.featured-events-carousel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    background: #fff;
+}
+
+.featured-events-carousel .carousel {
+    border-radius: 12px;
+}
+
+.featured-events-carousel .carousel-item {
+    transition: transform 0.8s ease-in-out;
+}
+
+.featured-events-carousel .carousel-inner {
+    border-radius: 12px;
+}
+
+/* Featured Event Slide Styles */
+.featured-event-slide {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+}
+
+.featured-event-slide .featured-event-image img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.featured-event-overlay {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+    border-radius: 12px;
+}
+
+.featured-event-content {
+    z-index: 2;
+    position: relative;
+    padding: 2rem;
+}
+
+.featured-event-content .featured-event-title {
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.featured-event-content .featured-event-description {
+    font-size: 1.1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    margin-bottom: 2rem;
+    max-width: 600px;
+    line-height: 1.5;
+}
+
+.featured-event-link {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border: none;
+    border-radius: 50px;
+    padding: 12px 30px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.featured-event-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+}
+
+.featured-event-link:active {
+    transform: translateY(0);
+}
+
+/* Carousel Controls */
+.featured-events-carousel .carousel-control-prev,
+.featured-events-carousel .carousel-control-next {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.featured-events-carousel .carousel-control-prev {
+    left: 20px;
+}
+
+.featured-events-carousel .carousel-control-next {
+    right: 20px;
+}
+
+.featured-events-carousel:hover .carousel-control-prev,
+.featured-events-carousel:hover .carousel-control-next {
+    opacity: 1;
+}
+
+.featured-events-carousel .carousel-control-prev:hover,
+.featured-events-carousel .carousel-control-next:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.featured-events-carousel .carousel-control-prev-icon,
+.featured-events-carousel .carousel-control-next-icon {
+    width: 24px;
+    height: 24px;
+    background-color: #333;
+    border-radius: 3px;
+}
+
+/* Carousel Indicators */
+.featured-events-carousel .carousel-indicators {
+    bottom: 20px;
+    margin-bottom: 0;
+}
+
+.featured-events-carousel .carousel-indicators button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    background: transparent;
+    margin: 0 4px;
+    transition: all 0.3s ease;
+}
+
+.featured-events-carousel .carousel-indicators button.active,
+.featured-events-carousel .carousel-indicators button:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    transform: scale(1.2);
+}
+
+/* Loading State */
+.carousel-loading {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    min-height: 300px;
+}
+
+.carousel-loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* No Events Message */
+.no-featured-events {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: none;
+    border-radius: 12px;
+    color: #1976d2;
+    font-size: 1.1rem;
+    padding: 3rem 2rem;
+}
+
+/* Card Layout (for sidebar/smaller displays) */
+.featured-event-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.featured-event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.featured-event-card .card-img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.featured-event-card .card-body {
+    padding: 1.5rem;
+}
+
+.featured-event-card .card-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.75rem;
+}
+
+.featured-event-card .card-text {
+    color: #666;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+}
+
+.featured-event-card .featured-event-link {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 8px 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .featured-event-slide {
+        height: 300px;
+    }
+    
+    .featured-event-slide .featured-event-image img {
+        height: 300px;
+    }
+    
+    .featured-event-content {
+        padding: 1.5rem;
+    }
+    
+    .featured-event-content .featured-event-title {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .featured-event-content .featured-event-description {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .featured-event-link {
+        padding: 10px 24px;
+        font-size: 0.9rem;
+    }
+    
+    .featured-events-carousel .carousel-control-prev,
+    .featured-events-carousel .carousel-control-next {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .featured-events-carousel .carousel-control-prev {
+        left: 10px;
+    }
+    
+    .featured-events-carousel .carousel-control-next {
+        right: 10px;
+    }
+    
+    .featured-events-carousel .carousel-control-prev-icon,
+    .featured-events-carousel .carousel-control-next-icon {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+@media (max-width: 576px) {
+    .featured-event-slide {
+        height: 250px;
+    }
+    
+    .featured-event-slide .featured-event-image img {
+        height: 250px;
+    }
+    
+    .featured-event-content {
+        padding: 1rem;
+    }
+    
+    .featured-event-content .featured-event-title {
+        font-size: 1.5rem;
+    }
+    
+    .featured-event-content .featured-event-description {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    
+    .featured-events-carousel .carousel-indicators {
+        bottom: 10px;
+    }
+    
+    .featured-events-carousel .carousel-indicators button {
+        width: 10px;
+        height: 10px;
+        margin: 0 3px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .featured-events-carousel {
+        background: #2d3748;
+    }
+    
+    .no-featured-events {
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        color: #e2e8f0;
+    }
+    
+    .featured-event-card {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .featured-event-card .card-title {
+        color: #e2e8f0;
+    }
+    
+    .featured-event-card .card-text {
+        color: #a0aec0;
+    }
+}
+
+/* Accessibility improvements */
+.featured-event-link:focus,
+.carousel-control-prev:focus,
+.carousel-control-next:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .featured-events-carousel .carousel-item {
+        transition: none;
+    }
+    
+    .featured-event-link,
+    .featured-event-card,
+    .carousel-control-prev,
+    .carousel-control-next {
+        transition: none;
+    }
+}

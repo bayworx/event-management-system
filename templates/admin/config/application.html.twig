@@ -1,0 +1,177 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Application Preferences - Configuration - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_config_index') }}">Configuration</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Application Preferences</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-sliders me-2"></i>
+                        <h5 class="card-title mb-0">Application Preferences</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.app_timezone) }}
+                                {{ form_widget(form.app_timezone) }}
+                                {{ form_errors(form.app_timezone) }}
+                                {% if form.app_timezone.vars.help %}
+                                    <div class="form-text">{{ form.app_timezone.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.app_items_per_page) }}
+                                {{ form_widget(form.app_items_per_page) }}
+                                {{ form_errors(form.app_items_per_page) }}
+                                {% if form.app_items_per_page.vars.help %}
+                                    <div class="form-text">{{ form.app_items_per_page.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.app_date_format) }}
+                                {{ form_widget(form.app_date_format) }}
+                                {{ form_errors(form.app_date_format) }}
+                                {% if form.app_date_format.vars.help %}
+                                    <div class="form-text">{{ form.app_date_format.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.app_time_format) }}
+                                {{ form_widget(form.app_time_format) }}
+                                {{ form_errors(form.app_time_format) }}
+                                {% if form.app_time_format.vars.help %}
+                                    <div class="form-text">{{ form.app_time_format.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.app_theme) }}
+                                {{ form_widget(form.app_theme) }}
+                                {{ form_errors(form.app_theme) }}
+                                {% if form.app_theme.vars.help %}
+                                    <div class="form-text">{{ form.app_theme.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.app_version) }}
+                                {{ form_widget(form.app_version) }}
+                                {{ form_errors(form.app_version) }}
+                                {% if form.app_version.vars.help %}
+                                    <div class="form-text">{{ form.app_version.vars.help }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form_widget(form.app_maintenance_mode) }}
+                            {{ form_label(form.app_maintenance_mode) }}
+                        </div>
+                        {{ form_errors(form.app_maintenance_mode) }}
+                        {% if form.app_maintenance_mode.vars.help %}
+                            <div class="form-text">{{ form.app_maintenance_mode.vars.help }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_config_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Configuration
+                        </a>
+                        <button type="submit" class="btn btn-info">
+                            <i class="bi bi-check-lg"></i> Save Preferences
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-xl-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> About Application Preferences
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6>Timezone</h6>
+                    <p class="text-muted small mb-3">
+                        Sets the default timezone for the application. All dates and times 
+                        will be displayed in this timezone unless overridden by user preferences.
+                    </p>
+
+                    <h6>Date & Time Formats</h6>
+                    <p class="text-muted small mb-3">
+                        Choose how dates and times are displayed throughout the application. 
+                        This affects event dates, user registration times, and other timestamps.
+                    </p>
+
+                    <h6>Items Per Page</h6>
+                    <p class="text-muted small mb-3">
+                        Default number of items to show per page in lists and tables. 
+                        Users can override this in their preferences.
+                    </p>
+
+                    <h6>Application Theme</h6>
+                    <p class="text-muted small mb-3">
+                        Choose the visual theme for the application. This affects colors, 
+                        styling, and overall appearance.
+                    </p>
+
+                    <h6>Maintenance Mode</h6>
+                    <p class="text-muted small mb-3">
+                        When enabled, only super administrators can access the application. 
+                        All other users will see a maintenance page.
+                    </p>
+
+                    <div class="alert alert-warning small">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Warning:</strong> Enabling maintenance mode will prevent 
+                        regular users from accessing the application. Use with caution.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Add New Presenter - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">Add New Presenter</h4>
+                            <small class="text-muted">Create a new presenter profile</small>
+                        </div>
+                        <div>
+                            <a href="{{ path('admin_presenter_index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="row">
+                        <!-- Basic Information -->
+                        <div class="col-12">
+                            <h5 class="mb-3">
+                                <i class="bi bi-person text-primary"></i>
+                                Basic Information
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.name) }}
+                            {{ form_widget(form.name) }}
+                            {{ form_help(form.name) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.email) }}
+                            {{ form_widget(form.email) }}
+                            {{ form_help(form.email) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.title) }}
+                            {{ form_widget(form.title) }}
+                            {{ form_help(form.title) }}
+                            {{ form_errors(form.title) }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.company) }}
+                            {{ form_widget(form.company) }}
+                            {{ form_help(form.company) }}
+                            {{ form_errors(form.company) }}
+                        </div>
+                        
+                        <div class="col-12 mb-4">
+                            {{ form_label(form.bio) }}
+                            {{ form_widget(form.bio) }}
+                            {{ form_help(form.bio) }}
+                            {{ form_errors(form.bio) }}
+                        </div>
+                        
+                        <!-- Contact Information -->
+                        <div class="col-12">
+                            <h5 class="mb-3">
+                                <i class="bi bi-globe text-primary"></i>
+                                Contact & Social Media
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.website) }}
+                            {{ form_widget(form.website) }}
+                            {{ form_help(form.website) }}
+                            {{ form_errors(form.website) }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.linkedin) }}
+                            {{ form_widget(form.linkedin) }}
+                            {{ form_help(form.linkedin) }}
+                            {{ form_errors(form.linkedin) }}
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            {{ form_label(form.twitter) }}
+                            {{ form_widget(form.twitter) }}
+                            {{ form_help(form.twitter) }}
+                            {{ form_errors(form.twitter) }}
+                        </div>
+                        
+                        <!-- Photo Upload -->
+                        <div class="col-12">
+                            <h5 class="mb-3">
+                                <i class="bi bi-camera text-primary"></i>
+                                Profile Photo
+                            </h5>
+                        </div>
+                        
+                        <div class="col-12 mb-4">
+                            {{ form_label(form.photoFile) }}
+                            {{ form_widget(form.photoFile) }}
+                            {{ form_help(form.photoFile) }}
+                            {{ form_errors(form.photoFile) }}
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a href="{{ path('admin_presenter_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Create Presenter
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.card-header {
+    padding: 1.5rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+h5 {
+    color: #6c757d;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem !important;
+}
+</style>
+{% endblock %}

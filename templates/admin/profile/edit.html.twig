@@ -1,0 +1,224 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit Profile - Admin{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-dark">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Edit Profile
+                </h1>
+                <a href="{{ path('admin_profile_show') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back to Profile
+                </a>
+            </div>
+
+            {% include 'admin/_flash_messages.html.twig' %}
+            
+            <div class="row">
+                <div class="col-md-8">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Personal Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.name) }}
+                                    {{ form_errors(form.name) }}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.email) }}
+                                    {{ form_errors(form.email) }}
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        This email is used for login and notifications
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    {{ form_label(form.department, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.department) }}
+                                    {{ form_errors(form.department) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Security</h5>
+                            <small class="text-muted">
+                                <i class="bi bi-shield-lock me-1"></i>
+                                Optional - leave empty to keep current password
+                            </small>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info d-flex align-items-center" role="alert">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <div>
+                                    <strong>Password Requirements:</strong> Minimum 6 characters. Leave both fields empty to keep your current password.
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form_label(form.plainPassword.first, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.plainPassword.first) }}
+                                    {{ form_errors(form.plainPassword.first) }}
+                                    {% if form.plainPassword.first.vars.help %}
+                                        <div class="form-text">{{ form.plainPassword.first.vars.help }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    {{ form_label(form.plainPassword.second, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(form.plainPassword.second) }}
+                                    {{ form_errors(form.plainPassword.second) }}
+                                </div>
+                            </div>
+                            
+                            {{ form_errors(form.plainPassword) }}
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('admin_profile_show') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Cancel
+                                </a>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Update Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Current Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Current Name:</strong><br>
+                                <span class="text-muted">{{ administrator.name }}</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Current Email:</strong><br>
+                                <span class="text-muted">{{ administrator.email }}</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Current Department:</strong><br>
+                                <span class="text-muted">
+                                    {% if administrator.department %}
+                                        {{ administrator.department }}
+                                    {% else %}
+                                        Not specified
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Account Status:</strong><br>
+                                {% if administrator.isSuperAdmin %}
+                                    <span class="badge bg-danger">Super Administrator</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Administrator</span>
+                                {% endif %}
+                            </div>
+                            
+                            <hr>
+                            
+                            <div class="alert alert-warning" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Important:</strong> Changing your email will affect your login credentials.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Help</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>Profile Updates</h6>
+                            <ul class="small">
+                                <li>Name and department changes are applied immediately</li>
+                                <li>Email changes affect your login credentials</li>
+                                <li>Password changes require confirmation</li>
+                                <li>Leave password fields empty to keep current password</li>
+                            </ul>
+                            
+                            <h6 class="mt-3">Security Tips</h6>
+                            <ul class="small">
+                                <li>Use a strong, unique password</li>
+                                <li>Keep your profile information up to date</li>
+                                <li>Log out when using shared computers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Client-side form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Password confirmation validation
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.querySelector('input[name="admin_profile[plainPassword][first]"]');
+    const confirmPassword = document.querySelector('input[name="admin_profile[plainPassword][second]"]');
+    
+    if (password && confirmPassword) {
+        function validatePassword() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Passwords do not match');
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+        
+        password.addEventListener('change', validatePassword);
+        confirmPassword.addEventListener('keyup', validatePassword);
+    }
+});
+</script>
+{% endblock %}

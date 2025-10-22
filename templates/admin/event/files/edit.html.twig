@@ -1,0 +1,152 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit File - {{ file.name }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Edit File</h1>
+                    <small class="text-muted">{{ event.title }} - {{ file.name }}</small>
+                </div>
+                <div class="btn-group">
+                    <a href="{{ path('admin_event_show', {'id': event.id}) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Event
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">File Details</h6>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            {{ form_row(form.file) }}
+                            <small class="text-muted">
+                                Current file: <strong>{{ file.originalName }}</strong>
+                                ({{ file.formattedFileSize }}, uploaded {{ file.uploadedAt|date('M j, Y') }})
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            {{ form_row(form.name) }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            {{ form_row(form.description) }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            {{ form_row(form.sortOrder) }}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mt-4 pt-2">
+                                {{ form_widget(form.isActive) }}
+                                {{ form_label(form.isActive) }}
+                                <div class="form-text">{{ form_help(form.isActive) }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{ form_rest(form) }}
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('admin_event_show', {'id': event.id}) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Update File
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- File Info -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-file-earmark"></i> File Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row small">
+                        <dt class="col-sm-5">Status:</dt>
+                        <dd class="col-sm-7">
+                            {% if file.isActive %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-5">Downloads:</dt>
+                        <dd class="col-sm-7">{{ file.downloadCount }}</dd>
+
+                        <dt class="col-sm-5">File Size:</dt>
+                        <dd class="col-sm-7">{{ file.formattedFileSize }}</dd>
+
+                        <dt class="col-sm-5">Type:</dt>
+                        <dd class="col-sm-7">{{ file.mimeType }}</dd>
+
+                        <dt class="col-sm-5">Uploaded:</dt>
+                        <dd class="col-sm-7">{{ file.uploadedAt|date('M j, Y g:i A') }}</dd>
+
+                        {% if file.updatedAt %}
+                        <dt class="col-sm-5">Last Modified:</dt>
+                        <dd class="col-sm-7">{{ file.updatedAt|date('M j, Y g:i A') }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <!-- File Actions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-tools"></i> File Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <form action="{{ path('admin_event_file_toggle', {'eventId': event.id, 'fileId': file.id}) }}" method="post">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle-event-file-' ~ file.id) }}">
+                            <button type="submit" class="btn btn-outline-{% if file.isActive %}warning{% else %}success{% endif %} w-100">
+                                <i class="bi bi-{% if file.isActive %}pause{% else %}play{% endif %}"></i>
+                                {% if file.isActive %}Deactivate{% else %}Activate{% endif %}
+                            </button>
+                        </form>
+                        
+                        <form action="{{ path('admin_event_file_delete', {'eventId': event.id, 'fileId': file.id}) }}" method="post" 
+                              onsubmit="return confirm('Are you sure you want to delete this file? This action cannot be undone.');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-event-file-' ~ file.id) }}">
+                            <button type="submit" class="btn btn-outline-danger w-100">
+                                <i class="bi bi-trash"></i> Delete File
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

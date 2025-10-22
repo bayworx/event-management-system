@@ -1,0 +1,156 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}New Import{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-upload"></i> New Event Import</h1>
+                <a href="{{ path('admin_import_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Imports
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Upload Import File</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(form) }}
+                                <div class="mb-4">
+                                    {{ form_row(form.importType) }}
+                                    <div class="form-text">
+                                        <strong>Import Types:</strong>
+                                        <ul class="mt-2">
+                                            <li><strong>Complete Import:</strong> Import events along with their agenda items, presenters, and attendees all in one file</li>
+                                            <li><strong>Events Only:</strong> Import only event information (title, description, dates, location)</li>
+                                            <li><strong>Attendees Only:</strong> Import attendees for existing events</li>
+                                            <li><strong>Agenda Items Only:</strong> Import agenda items for existing events</li>
+                                            <li><strong>Presenters Only:</strong> Import presenters for existing events</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    {{ form_row(form.file) }}
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ path('admin_import_index') }}" class="btn btn-outline-secondary">
+                                        Cancel
+                                    </a>
+                                    {{ form_row(form.submit) }}
+                                </div>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Download Templates -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6><i class="bi bi-download"></i> Download CSV Templates</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Download these CSV templates to ensure your data is properly formatted:</p>
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('admin_import_template', {type: 'complete'}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Complete Import Template
+                                </a>
+                                <a href="{{ path('admin_import_template', {type: 'events_only'}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Events Only Template
+                                </a>
+                                <a href="{{ path('admin_import_template', {type: 'attendees_only'}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Attendees Only Template
+                                </a>
+                                <a href="{{ path('admin_import_template', {type: 'agenda_only'}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Agenda Only Template
+                                </a>
+                                <a href="{{ path('admin_import_template', {type: 'presenters_only'}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-file-earmark-spreadsheet"></i> Presenters Only Template
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Format Guidelines -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6><i class="bi bi-info-circle"></i> File Format Guidelines</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>Supported formats:</strong> CSV, XLS, XLSX
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>Maximum file size:</strong> 10MB
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>First row:</strong> Must contain column headers
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>Date format:</strong> YYYY-MM-DD or YYYY-MM-DD HH:MM:SS
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>Encoding:</strong> UTF-8 recommended
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Import Process -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="bi bi-arrow-right-circle"></i> Import Process</h6>
+                        </div>
+                        <div class="card-body">
+                            <ol class="list-unstyled">
+                                <li class="mb-2">
+                                    <span class="badge bg-primary rounded-pill">1</span>
+                                    <strong class="ms-2">Upload:</strong> Select and upload your CSV file
+                                </li>
+                                <li class="mb-2">
+                                    <span class="badge bg-primary rounded-pill">2</span>
+                                    <strong class="ms-2">Preview:</strong> Review parsed data and column mapping
+                                </li>
+                                <li class="mb-2">
+                                    <span class="badge bg-primary rounded-pill">3</span>
+                                    <strong class="ms-2">Execute:</strong> Confirm and run the import
+                                </li>
+                                <li class="mb-2">
+                                    <span class="badge bg-primary rounded-pill">4</span>
+                                    <strong class="ms-2">Results:</strong> Review import results and any errors
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show/hide help text based on import type selection
+document.addEventListener('DOMContentLoaded', function() {
+    const importTypeSelect = document.querySelector('#event_import_importType');
+    if (importTypeSelect) {
+        importTypeSelect.addEventListener('change', function() {
+            // Could add dynamic help text here based on selection
+            console.log('Import type changed to:', this.value);
+        });
+    }
+});
+</script>
+{% endblock %}

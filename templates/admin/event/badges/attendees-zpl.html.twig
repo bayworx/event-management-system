@@ -1,0 +1,350 @@
+{% if request.query.get('format') == 'zpl' %}
+{# ZPL Format for ZEBRA ZD621 4" Thermal Printer #}
+{# Badge dimensions: 4" x 3" (832 x 624 dots at 208 DPI) #}
+{# Content-Type: text/plain for ZPL output #}
+{{ response.headers.set('Content-Type', 'text/plain') }}
+{% for attendee in event.attendees %}
+^XA
+^LH0,0
+^CI28
+
+{# Set print width and length for 4" x 3" badge #}
+^PW832
+^LL624
+
+{# Main border rectangle #}
+^FO30,30^GB772,564,4^FS
+
+{# Event header section background #}
+^FO40,40^GB752,120,0,B^FS
+
+{# Event title - Large, bold font #}
+^CF0,60,60
+^FO60,60^FD{{ event.title|slice(0,25)|upper }}^FS
+
+{# Event date #}
+^CF0,30,30
+^FO60,110^FD{{ event.startDate|date('M d, Y')|upper }}{% if event.endDate and event.endDate != event.startDate %} - {{ event.endDate|date('M d, Y')|upper }}{% endif %}^FS
+
+{# Attendee type badge #}
+^FO600,50^GB150,40,2^FS
+^CF0,20,20
+^FO630,60^FDATTENDEE^FS
+
+{# Separator line #}
+^FO40,180^GB752,2,2^FS
+
+{# Attendee name - Very large, centered #}
+^CF0,80,80
+^FO60,220^FD{{ attendee.name|slice(0,20)|upper }}^FS
+
+{# Organization (if present) #}
+{% if attendee.organization %}
+^CF0,40,40  
+^FO60,320^FD{{ attendee.organization|slice(0,30)|upper }}^FS
+{% endif %}
+
+{# Job title (if present) #}
+{% if attendee.jobTitle %}
+^CF0,30,30
+^FO60,{% if attendee.organization %}380{% else %}340{% endif %}^FD{{ attendee.jobTitle|slice(0,35)|upper }}^FS
+{% endif %}
+
+{# Bottom section with ID and QR code area #}
+^FO40,480^GB752,2,2^FS
+
+{# Attendee ID #}
+^CF0,25,25
+^FO60,500^FDID: {{ attendee.id }}^FS
+
+{# QR Code with attendee info (optional) #}
+{# Uncomment if you want QR codes #}
+{# ^FO600,500^BQN,2,8^FDQA,{{ attendee.id }}-{{ attendee.email }}^FS #}
+
+{# Event location (if present) #}
+{% if event.location %}
+^CF0,20,20
+^FO400,500^FD{{ event.location|slice(0,25)|upper }}^FS
+{% endif %}
+
+{# Print command #}
+^XZ
+
+{% endfor %}
+{% else %}
+{# HTML Format for Preview/Regular Printing #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEBRA ZD621 Badge Preview - {{ event.title }}</title>
+    <style>
+        @page {
+            size: 4in 3in;
+            margin: 0;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            line-height: 1.2;
+        }
+        
+        .preview-info {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .preview-info h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .preview-info p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .badges-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(4in, 1fr));
+            gap: 20px;
+            max-width: 100%;
+        }
+        
+        .zebra-badge {
+            width: 4in;
+            height: 3in;
+            background: white;
+            border: 2px solid #000;
+            padding: 0;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .badge-header {
+            background: #000;
+            color: white;
+            padding: 8px 12px;
+            position: relative;
+            min-height: 60px;
+        }
+        
+        .event-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+        
+        .event-date {
+            font-size: 10px;
+            margin: 4px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .attendee-type {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: white;
+            color: black;
+            padding: 4px 8px;
+            font-size: 8px;
+            font-weight: bold;
+            border: 1px solid #666;
+        }
+        
+        .badge-body {
+            flex: 1;
+            padding: 20px 12px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .attendee-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            text-align: center;
+            color: #000;
+        }
+        
+        .attendee-organization {
+            font-size: 12px;
+            margin: 0 0 6px 0;
+            text-align: center;
+            color: #333;
+            text-transform: uppercase;
+        }
+        
+        .attendee-job-title {
+            font-size: 10px;
+            margin: 0 0 8px 0;
+            text-align: center;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .badge-footer {
+            border-top: 1px solid #ccc;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            color: #666;
+            min-height: 20px;
+        }
+        
+        .attendee-id {
+            font-weight: bold;
+        }
+        
+        .event-location {
+            text-transform: uppercase;
+        }
+        
+        .print-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+        
+        .print-controls button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .print-controls button:hover {
+            background: #0056b3;
+        }
+        
+        .print-controls .btn-zebra {
+            background: #28a745;
+        }
+        
+        .print-controls .btn-zebra:hover {
+            background: #1e7e34;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .preview-info,
+            .print-controls {
+                display: none !important;
+            }
+            
+            .badges-container {
+                gap: 0.2in;
+            }
+            
+            .zebra-badge {
+                box-shadow: none;
+                break-inside: avoid;
+            }
+        }
+        
+        .no-attendees {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-info">
+        <h3>🖨️ ZEBRA ZD621 Badge Preview</h3>
+        <p><strong>{{ event.attendees|length }}</strong> attendees for <strong>{{ event.title }}</strong></p>
+        <p>Date: {{ event.startDate|date('F j, Y') }}{% if event.endDate and event.endDate != event.startDate %} - {{ event.endDate|date('F j, Y') }}{% endif %}</p>
+        <p>Badge size: 4" × 3" (optimized for ZEBRA ZD621)</p>
+        <p>Print resolution: 208 DPI thermal printing</p>
+    </div>
+
+    <div class="print-controls">
+        <a href="{{ path('admin_event_attendee_badges_zebra', {id: event.id}) }}?format=zpl" 
+           class="btn-zebra" 
+           target="_blank"
+           title="Download ZPL format for direct printing">
+           📄 Download ZPL
+        </a>
+        <button onclick="window.print()">🖨️ Print Preview</button>
+    </div>
+
+    <div class="badges-container">
+        {% for attendee in event.attendees %}
+            <div class="zebra-badge">
+                <div class="badge-header">
+                    <div class="attendee-type">ATTENDEE</div>
+                    <h3 class="event-title">{{ event.title|slice(0,25) }}</h3>
+                    <p class="event-date">{{ event.startDate|date('M d, Y') }}{% if event.endDate and event.endDate != event.startDate %} - {{ event.endDate|date('M d, Y') }}{% endif %}</p>
+                </div>
+                
+                <div class="badge-body">
+                    <h2 class="attendee-name">{{ attendee.name|slice(0,20) }}</h2>
+                    {% if attendee.organization %}
+                        <p class="attendee-organization">{{ attendee.organization|slice(0,30) }}</p>
+                    {% endif %}
+                    {% if attendee.jobTitle %}
+                        <p class="attendee-job-title">{{ attendee.jobTitle|slice(0,35) }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="badge-footer">
+                    <div class="attendee-id">ID: {{ attendee.id }}</div>
+                    {% if event.location %}
+                        <div class="event-location">{{ event.location|slice(0,25) }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="no-attendees">
+                <h3>No Attendees Registered</h3>
+                <p>There are no attendees registered for this event yet.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            if (window.location.search.includes('autoprint=1')) {
+                setTimeout(function() {
+                    window.print();
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
+{% endif %}

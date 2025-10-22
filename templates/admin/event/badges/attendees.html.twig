@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendee Badges - {{ event.title }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0.5in;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+        }
+        
+        .badges-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 20px 0;
+        }
+        
+        .badge {
+            border: 2px solid #28a745;
+            border-radius: 12px;
+            padding: 15px;
+            background: linear-gradient(135deg, #fff 0%, #f8fff8 100%);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            page-break-inside: avoid;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .badge::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 30px;
+            height: 30px;
+            background: #28a745;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+        
+        .badge-header {
+            text-align: center;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #e9f7ef;
+            padding-bottom: 8px;
+        }
+        
+        .badge-type {
+            background: #aaaaaa;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+        
+        .event-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #495057;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .event-date {
+            font-size: 9px;
+            color: #6c757d;
+            margin: 2px 0 0 0;
+        }
+        
+        .attendee-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .attendee-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #28a745;
+            background: #28a745;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        
+        .attendee-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #212529;
+            margin: 0 0 8px 0;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .attendee-organization {
+            font-size: 16px;
+            color: #007bff;
+            margin: 0 0 8px 0;
+            text-align: center;
+            font-weight: 500;
+            font-style: italic;
+        }
+        
+        
+        .badge-footer {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px solid #e9f7ef;
+        }
+        
+        
+        .attendee-id {
+            font-size: 8px;
+            color: #28a745;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+        
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .badge {
+                break-inside: avoid;
+            }
+        }
+        
+        .print-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+        
+        .print-controls button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        .print-controls button:hover {
+            background: #218838;
+        }
+        
+        .print-controls .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .print-controls .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .stats h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+            font-size: 16px;
+        }
+        
+        .stats p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-controls no-print">
+        <button onclick="window.print()">🖨️ Print Badges</button>
+        <!--<button class="btn-secondary" onclick="window.history.back()">← Back</button>-->
+    </div>
+
+    <div class="stats no-print">
+        <h4>Attendee Badge Summary</h4>
+        <p><strong>{{ event.attendees|length }}</strong> total attendees for <strong>{{ event.title }}</strong></p>
+        <p>Date: {{ event.startDate|date('F j, Y') }}{% if event.endDate and event.endDate != event.startDate %} - {{ event.endDate|date('F j, Y') }}{% endif %}</p>
+    </div>
+
+    <div class="badges-container">
+        {% for attendee in event.attendees %}
+            <div class="badge">
+                <div class="badge-header">
+                    <div class="badge-type">Attendee</div>
+                    <h3 class="event-title">{{ event.title }}</h3>
+                    <p class="event-date">{{ event.startDate|date('M j, Y') }}{% if event.endDate and event.endDate != event.startDate %} - {{ event.endDate|date('M j, Y') }}{% endif %}</p>
+                </div>
+                
+                <div class="attendee-info">
+		<!--
+                    <div class="attendee-avatar">
+                        {% if attendee.name|length > 0 %}
+                            {% set firstLetter = attendee.name|slice(0,1)|upper %}
+                            {% set secondLetter = attendee.name|split(' ')|length > 1 ? attendee.name|split(' ')[1]|slice(0,1)|upper : '' %}
+                            {{ firstLetter }}{{ secondLetter }}
+                        {% else %}
+                            ?
+                        {% endif %}
+                    </div>
+                --> 
+                    <h2 class="attendee-name">{{ attendee.name }}</h2>
+                    {% if attendee.organization %}
+                        <p class="attendee-organization">{{ attendee.organization }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="badge-footer">
+                    <p class="attendee-id">ID: {{ attendee.id }}</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="badge" style="grid-column: 1 / -1; text-align: center; justify-content: center;">
+                <div class="attendee-info">
+                    <h2 style="color: #6c757d;">No Attendees Registered</h2>
+                    <p style="color: #6c757d;">There are no attendees registered for this event yet.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Auto-focus for better printing experience
+        window.addEventListener('load', function() {
+            if (window.location.search.includes('autoprint=1')) {
+                setTimeout(function() {
+                    window.print();
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

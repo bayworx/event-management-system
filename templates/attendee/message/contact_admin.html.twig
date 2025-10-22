@@ -1,0 +1,216 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact Administrators{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3><i class="bi bi-chat-dots"></i> Contact Event Administrators</h3>
+                        <a href="{{ path('attendee_message_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Messages
+                        </a>
+                    </div>
+                    <p class="mb-0 text-muted">Send a message to the administrators of {{ event.title }}</p>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="mb-4">
+                            <label for="subject" class="form-label">Subject *</label>
+                            <input type="text" class="form-control" id="subject" name="subject" 
+                                   placeholder="Enter the subject of your message..." required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select class="form-select" id="priority" name="priority">
+                                <option value="low">Low</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                            <div class="form-text">
+                                Select the appropriate priority level for your message
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="content" class="form-label">Your Message *</label>
+                            <textarea class="form-control" id="content" name="content" rows="8" 
+                                      placeholder="Enter your message to the event administrators..." required></textarea>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-info-circle"></i> Who will receive this message?</h6>
+                            <p class="mb-2">Your message will be sent to the following event administrators:</p>
+                            <ul class="mb-0">
+                                {% for admin in administrators %}
+                                    <li>
+                                        <strong>{{ admin.name }}</strong>
+                                        {% if admin.department %}
+                                            - {{ admin.department }}
+                                        {% endif %}
+                                        ({{ admin.email }})
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('attendee_message_index') }}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="bi bi-question-circle"></i> Messaging Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-success">Do:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-check text-success"></i> Be clear and specific about your question or concern</li>
+                                <li><i class="bi bi-check text-success"></i> Include relevant details (dates, times, reference numbers)</li>
+                                <li><i class="bi bi-check text-success"></i> Use appropriate priority levels</li>
+                                <li><i class="bi bi-check text-success"></i> Be polite and professional</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-warning">Don't:</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="bi bi-x text-warning"></i> Use urgent priority for non-urgent matters</li>
+                                <li><i class="bi bi-x text-warning"></i> Send multiple messages for the same issue</li>
+                                <li><i class="bi bi-x text-warning"></i> Include personal or sensitive information</li>
+                                <li><i class="bi bi-x text-warning"></i> Use inappropriate language</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Event Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="bi bi-calendar-event"></i> Event Information</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-4">Event:</dt>
+                        <dd class="col-8">{{ event.title }}</dd>
+
+                        <dt class="col-4">Date:</dt>
+                        <dd class="col-8">
+                            {{ event.startDate|date('M j, Y') }}
+                            {% if event.endDate and event.endDate.format('Y-m-d') != event.startDate.format('Y-m-d') %}
+                                - {{ event.endDate|date('M j, Y') }}
+                            {% endif %}
+                        </dd>
+
+                        {% if event.location %}
+                            <dt class="col-4">Location:</dt>
+                            <dd class="col-8">{{ event.location }}</dd>
+                        {% endif %}
+
+                        <dt class="col-4">Attendees:</dt>
+                        <dd class="col-8">{{ event.attendeesCount }} registered</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="bi bi-lightning"></i> Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="setQuickMessage('general')">
+                            General Question
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="setQuickMessage('registration')">
+                            Registration Issue
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="setQuickMessage('technical')">
+                            Technical Problem
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="setQuickMessage('schedule')">
+                            Schedule Question
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Time Info -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="bi bi-clock"></i> Response Times</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <span class="badge bg-danger">Urgent:</span> 
+                            <small>Within 2 hours</small>
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-warning">High:</span> 
+                            <small>Within 4 hours</small>
+                        </li>
+                        <li class="mb-2">
+                            <span class="badge bg-primary">Normal:</span> 
+                            <small>Within 24 hours</small>
+                        </li>
+                        <li>
+                            <span class="badge bg-secondary">Low:</span> 
+                            <small>Within 48 hours</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function setQuickMessage(type) {
+    const subjectField = document.getElementById('subject');
+    const contentField = document.getElementById('content');
+    const eventTitle = '{{ event.title }}';
+    
+    switch(type) {
+        case 'general':
+            subjectField.value = `General question about ${eventTitle}`;
+            contentField.value = 'I have a general question about the event:\n\n';
+            break;
+        case 'registration':
+            subjectField.value = `Registration issue for ${eventTitle}`;
+            contentField.value = 'I am experiencing an issue with my registration:\n\n';
+            break;
+        case 'technical':
+            subjectField.value = `Technical problem with ${eventTitle}`;
+            contentField.value = 'I am experiencing a technical problem:\n\n';
+            break;
+        case 'schedule':
+            subjectField.value = `Schedule question for ${eventTitle}`;
+            contentField.value = 'I have a question about the event schedule:\n\n';
+            break;
+    }
+    
+    contentField.focus();
+    contentField.setSelectionRange(contentField.value.length, contentField.value.length);
+}
+</script>
+{% endblock %}

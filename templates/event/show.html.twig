@@ -1,0 +1,444 @@
+{% extends 'event_base.html.twig' %}
+
+{% block title %}{{ event.title }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+{{ include('_partials/company_logo_header.html.twig') }}
+
+<div class="container my-4">
+    <!-- Deactivated Event Alert -->
+    {% if event_deactivated %}
+        <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem;"></i>
+                <div>
+                    <h5 class="alert-heading mb-1">This event is no longer available</h5>
+                    <p class="mb-0">This event has been deactivated and is not currently accepting registrations or providing access to materials.</p>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+    <!--<div class="row mb-4"></div>--> 
+    <!-- Event Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            {% if event.bannerImage %}
+                <div class="position-relative mb-4">
+                    <img src="{{ asset('uploads/events/' ~ event.bannerImage) }}" class="img-fluid w-100 rounded" alt="{{ event.title }}" style="height: 300px; object-fit: cover;">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 rounded d-flex align-items-end">
+                        <div class="container">
+                            <div class="text-white p-4">
+                                <h1 class="display-5 fw-bold mb-2">{{ event.title }}</h1>
+                                <h2 class="display-6 mb-2">{{ event.startDate|date('F j, Y') }}</h2>
+                                {% if event.location %}
+                                    <p class="lead mb-2"><i class="bi bi-geo-alt"></i> {{ event.location }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center mb-4">
+                    <h1 class="display-5 fw-bold">{{ event.title }}</h1>
+                    {% if event.location %}
+                        <p class="lead text-muted"><i class="bi bi-geo-alt"></i> {{ event.location }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Event Details -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-info-circle"></i> Event Details</h5>
+                    {% if event.description %}
+                        <div class="mb-3">
+                            <p>{{ event.description|nl2br }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Event Details -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-calendar text-primary me-2"></i>
+                                <div>
+                                    <strong>Start Date:</strong><br>
+                                    <small>{{ event.startDate|date('l, F j, Y \\a\\t g:i A') }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% if event.endDate %}
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-calendar-check text-success me-2"></i>
+                                    <div>
+                                        <strong>End Date:</strong><br>
+                                        <small>{{ event.endDate|date('l, F j, Y \\a\\t g:i A') }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if event.location %}
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-geo-alt text-info me-2"></i>
+                                    <div>
+                                        <strong>Location:</strong><br>
+                                        <small>{{ event.location }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if event.maxAttendees %}
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-people text-warning me-2"></i>
+                                    <div>
+                                        <strong>Capacity:</strong> {{ attendee_count }} / {{ event.maxAttendees }} attendees
+                                    </div>
+                                </div>
+                                <div class="progress mt-2" style="height: 5px;">
+                                    {% set percentage = (attendee_count / event.maxAttendees * 100)|round %}
+                                    <div class="progress-bar {% if percentage >= 90 %}bg-danger{% elseif percentage >= 70 %}bg-warning{% else %}bg-success{% endif %}" 
+                                         role="progressbar" style="width: {{ percentage }}%" 
+                                         aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Event Presenters -->
+            {% set visiblePresenters = event.visiblePresenters %}
+            {% if visiblePresenters|length > 0 %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-person-video3"></i>
+                            {% if visiblePresenters|length == 1 %}Speaker{% else %}Speakers{% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            {% for eventPresenter in visiblePresenters %}
+                                {% set presenter = eventPresenter.presenter %}
+                                <div class="col-md-10">
+                                    <div class="d-flex align-items-start">
+                                        {% if presenter.photo %}
+                                            <img src="{{ asset('uploads/presenters/' ~ presenter.photo) }}" 
+                                                 alt="{{ presenter.name }}" 
+                                                 class="me-3 rounded-circle flex-shrink-0" 
+                                                 style="width: 80px; height: 80px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" 
+                                                 style="width: 80px; height: 80px; font-size: 1.8rem;">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="flex-grow-1">
+                                            <h4 class="mb-1">{{ presenter.name }}</h4>
+                                            {% if presenter.title and presenter.company %}
+                                                <p class="text-muted small mb-2">{{ presenter.title }} at {{ presenter.company }}</p>
+                                            {% elseif presenter.title %}
+                                                <p class="text-muted small mb-2">{{ presenter.title }}</p>
+                                            {% elseif presenter.company %}
+                                                <p class="text-muted small mb-2">{{ presenter.company }}</p>
+                                            {% endif %}
+                                            {% if presenter.bio %}
+                                                <p class="text-muted small mb-6">{{ presenter.bio}}</p>
+                                                <!--<p class="text-muted small mb-6">{{ presenter.bio|slice(0, 120) }}{% if presenter.bio|length > 120 %}...{% endif %}</p>-->
+                                            {% endif %}
+                                            <hr/>
+                                            {% if eventPresenter.presentationTitle %}
+                                                <p class="fw-medium mb-2">{{ eventPresenter.presentationTitle }}</p>
+                                            {% endif %}
+                                            {% if eventPresenter.presentationDescription %}
+                                                <p class="text-muted small mb-2">{{ eventPresenter.presentationDescription }}</p>
+                                            {% endif %}
+                                            {% if eventPresenter.timeRange %}
+                                                <p class="text-muted small mb-2">
+                                                    <i class="bi bi-clock"></i> {{ eventPresenter.timeRange }}
+                                                </p>
+                                            {% endif %}
+                                            <!-- Social Links -->
+                                            {% if presenter.website or presenter.linkedin or presenter.twitter %}
+                                                <div class="d-flex gap-2">
+                                                    {% if presenter.website %}
+                                                        <a href="{{ presenter.website }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                            <i class="bi bi-globe"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                    {% if presenter.linkedin %}
+                                                        <a href="{{ presenter.linkedin }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                            <i class="bi bi-linkedin"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                    {% if presenter.twitter %}
+                                                        <a href="https://twitter.com/{{ presenter.twitter|replace({'@': ''}) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                            <i class="bi bi-twitter"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Event Agenda -->
+            {% set visibleAgenda = event.visibleAgendaItems %}
+            {% if visibleAgenda|length > 0 %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-calendar2-event"></i> Event Agenda
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="agenda-timeline">
+                            {% for agendaItem in visibleAgenda %}
+                                <div class="agenda-item d-flex mb-4 pb-4 {% if not loop.last %}border-bottom{% endif %}">
+                                    <div class="agenda-time flex-shrink-0 me-4">
+                                        {% if agendaItem.startTime %}
+                                            <div class="bg-primary text-white rounded px-3 py-2 text-center" style="min-width: 90px;">
+                                                <div class="fw-bold">{{ agendaItem.startTime|date('g:i A') }}</div>
+                                                {% if agendaItem.endTime %}
+                                                    <small>{{ agendaItem.endTime|date('g:i A') }}</small>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <div class="bg-secondary text-white rounded px-3 py-2 text-center" style="min-width: 90px;">
+                                                <div class="fw-bold">TBD</div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="agenda-content flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-0">{{ agendaItem.title }}</h6>
+                                            {% if agendaItem.itemType %}
+                                                <span class="badge bg-info">{{ agendaItem.itemType|title }}</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if agendaItem.speaker %}
+                                            <div class="text-muted small mb-2">
+                                                <i class="bi bi-person me-1"></i>
+                                                <strong>Speaker:</strong> {{ agendaItem.speaker }}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if agendaItem.presenter %}
+                                            <div class="text-muted small mb-2">
+                                                <i class="bi bi-microphone me-1"></i>
+                                                <strong>Presenter:</strong> {{ agendaItem.presenter.name }}
+                                                {% if agendaItem.presenter.title %}
+                                                    ({{ agendaItem.presenter.title }})
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if agendaItem.location %}
+                                            <div class="text-muted small mb-2">
+                                                <i class="bi bi-geo-alt me-1"></i>
+                                                <strong>Location:</strong> {{ agendaItem.location }}
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if agendaItem.description %}
+                                            <div class="text-muted mt-2">
+                                                <p class="mb-0">{{ agendaItem.description|nl2br }}</p>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Event Files -->
+            {% if files|length > 0 %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0"><i class="bi bi-download"></i> Event Materials</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user_is_attendee or is_granted('ROLE_ADMIN') %}
+                            <div class="row g-3">
+                                {% for file in files %}
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center p-3 bg-light rounded">
+                                            <div class="me-3">
+                                                {% if file.isImage %}
+                                                    <i class="bi bi-image text-primary" style="font-size: 1.5rem;"></i>
+                                                {% elseif file.isPdf %}
+                                                    <i class="bi bi-file-pdf text-danger" style="font-size: 1.5rem;"></i>
+                                                {% else %}
+                                                    <i class="bi bi-file-earmark text-secondary" style="font-size: 1.5rem;"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex-grow-1 me-3">
+                                                <h6 class="mb-1">{{ file.name }}</h6>
+                                                <small class="text-muted">
+                                                    {{ file.formattedFileSize }}
+                                                    {% if file.downloadCount > 0 %}
+                                                        • {{ file.downloadCount }} downloads
+                                                    {% endif %}
+                                                </small>
+                                                {% if file.description %}
+                                                    <br><small class="text-muted">{{ file.description }}</small>
+                                                {% endif %}
+                                            </div>
+                                            <a href="{{ path('event_file_download', {slug: event.slug, id: file.id}) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="bi bi-lock text-muted" style="font-size: 2rem;"></i>
+                                <p class="text-muted mt-2">You need to register and verify your email to access event materials.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Registration Card -->
+            {% if not app.user or not user_is_attendee %}
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        {% if event_deactivated %}
+                            <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
+                            <h5 class="card-title mt-3 text-danger">Event Deactivated</h5>
+                            <p class="card-text">This event is no longer available for registration.</p>
+                            <button class="btn btn-secondary" disabled>Registration Unavailable</button>
+                        {% elseif event.startDate > date() %}
+                            {% if event.canAcceptMoreAttendees %}
+                                <i class="bi bi-person-plus text-success" style="font-size: 2rem;"></i>
+                                <h5 class="card-title mt-3">Register Now</h5>
+                                <p class="card-text">Join this event and get access to exclusive materials.</p>
+                                <a href="{{ path('event_register', {slug: event.slug}) }}" class="btn btn-success">
+                                    <i class="bi bi-person-plus"></i> Register Now 
+                                </a>
+                            {% else %}
+                                <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                                <h5 class="card-title mt-3">Event Full</h5>
+                                <p class="card-text">This event has reached maximum capacity.</p>
+                                <button class="btn btn-secondary" disabled>Registration Closed</button>
+                            {% endif %}
+                        {% else %}
+                            <i class="bi bi-calendar-check text-muted" style="font-size: 3rem;"></i>
+                            <h5 class="card-title mt-3">Event Completed</h5>
+                            <p class="card-text">This event has already taken place.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="card mb-4 border-success">
+                    <div class="card-body text-center">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+                        <h5 class="card-title mt-3 text-success">You're Registered!</h5>
+                        <p class="card-text">You have access to all event materials.</p>
+                        {% if files|length > 0 %}
+                            <small class="text-muted">Scroll down to download event materials.</small>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Quick Login for Attendees -->
+            {% if not app.user and not event_deactivated %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-envelope"></i> Already Registered?</h6>
+                        <p class="card-text small">Get instant access with your email.</p>
+                        <form method="post" action="{{ path('attendee_login_link', {slug: event.slug}) }}">
+                            <div class="input-group">
+                                <input type="email" name="email" class="form-control form-control-sm" placeholder="your@email.com" required>
+                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-send"></i> Send Link
+                                </button>
+                            </div>
+                        </form>
+                        <small class="text-muted">We'll send you a secure login link.</small>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Event Stats -->
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="bi bi-bar-chart"></i> Event Statistics</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Total Attendees:</span>
+                        <strong>{{ attendee_count }}</strong>
+                    </div>
+                    {% if event.maxAttendees %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Available Spots:</span>
+                            <strong>{{ event.maxAttendees - attendee_count }}</strong>
+                        </div>
+                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Event Status:</span>
+                        <span class="badge {% if event_deactivated %}bg-danger{% elseif event.startDate > date() %}bg-success{% else %}bg-secondary{% endif %}">
+                            {% if event_deactivated %}Deactivated{% elseif event.startDate > date() %}Upcoming{% else %}Completed{% endif %}
+                        </span>
+                    </div>
+                    {% if visibleAgenda is defined and visibleAgenda|length > 0 %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>Agenda Items:</span>
+                            <strong>{{ visibleAgenda|length }}</strong>
+                        </div>
+                    {% endif %}
+                    {% if files|length > 0 %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Materials Available:</span>
+                            <strong>{{ files|length }}</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Add to Calendar -->
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <h6 class="card-title"><i class="bi bi-calendar-plus"></i> Add to Your Calendar</h6>
+                    <p class="card-text small text-muted">Never miss this event - add it to your personal calendar.</p>
+                    <a href="{{ path('event_calendar_download', {slug: event.slug}) }}" class="btn btn-outline-success btn-sm w-100">
+                        <i class="bi bi-download"></i> Download Calendar Event (.ics)
+                    </a>
+                    <small class="text-muted d-block mt-2">
+                        Works with Google Calendar, Outlook, Apple Calendar, and more.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

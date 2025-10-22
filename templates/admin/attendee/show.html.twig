@@ -1,0 +1,253 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ attendee.name }} - Attendee Details - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Attendee Details</h1>
+                    <small class="text-muted">{{ attendee.name }} - {{ attendee.event.title }}</small>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('admin_attendee_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Attendees
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Attendee Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Personal Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 text-center mb-3 mb-md-0">
+                            <div class="avatar-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 80px; height: 80px; border-radius: 50%; font-size: 2rem;">
+                                {{ attendee.name|slice(0,1)|upper }}
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <dl class="row">
+                                <dt class="col-sm-3">Full Name</dt>
+                                <dd class="col-sm-9">{{ attendee.name }}</dd>
+
+                                <dt class="col-sm-3">Email</dt>
+                                <dd class="col-sm-9">
+                                    <a href="mailto:{{ attendee.email }}" class="text-decoration-none">
+                                        {{ attendee.email }}
+                                    </a>
+                                </dd>
+
+                                {% if attendee.phone %}
+                                <dt class="col-sm-3">Phone</dt>
+                                <dd class="col-sm-9">{{ attendee.phone }}</dd>
+                                {% endif %}
+
+                                {% if attendee.organization %}
+                                <dt class="col-sm-3">Organization</dt>
+                                <dd class="col-sm-9">{{ attendee.organization }}</dd>
+                                {% endif %}
+
+                                {% if attendee.jobTitle %}
+                                <dt class="col-sm-3">Job Title</dt>
+                                <dd class="col-sm-9">{{ attendee.jobTitle }}</dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Event Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        {% if attendee.event.bannerImage %}
+                            <img src="{{ asset('uploads/events/' ~ attendee.event.bannerImage) }}" 
+                                 alt="{{ attendee.event.title }}" 
+                                 class="me-3 rounded" 
+                                 style="width: 100px; height: 60px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 100px; height: 60px;">
+                                <i class="bi bi-calendar-event"></i>
+                            </div>
+                        {% endif %}
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">
+                                <a href="{{ path('admin_event_show', {'id': attendee.event.id}) }}" 
+                                   class="text-decoration-none">
+                                    {{ attendee.event.title }}
+                                </a>
+                            </h5>
+                            <p class="text-muted mb-2">{{ attendee.event.startDate|date('F j, Y \\\\a\\\\t g:i A') }}</p>
+                            {% if attendee.event.location %}
+                                <p class="text-muted mb-0">
+                                    <i class="bi bi-geo-alt"></i> {{ attendee.event.location }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if attendee.notes %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Notes</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0" style="white-space: pre-line;">{{ attendee.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Status Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Status & Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>Email Verification:</span>
+                        {% if attendee.isVerified %}
+                            <span class="badge bg-success">Verified</span>
+                        {% else %}
+                            <span class="badge bg-warning">Unverified</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span>Check-in Status:</span>
+                        {% if attendee.isCheckedIn %}
+                            <span class="badge bg-info">Checked In</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Not Checked In</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <!-- Toggle Verification -->
+                        <form method="post" action="{{ path('admin_attendee_toggle_verification', {'id': attendee.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle-verification-' ~ attendee.id) }}">
+                            <button type="submit" class="btn btn-{% if attendee.isVerified %}warning{% else %}success{% endif %} w-100">
+                                <i class="bi bi-{% if attendee.isVerified %}shield-x{% else %}shield-check{% endif %}"></i>
+                                {% if attendee.isVerified %}Mark as Unverified{% else %}Mark as Verified{% endif %}
+                            </button>
+                        </form>
+
+                        <!-- Toggle Check-in -->
+                        <form method="post" action="{{ path('admin_attendee_toggle_checkin', {'id': attendee.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle-checkin-' ~ attendee.id) }}">
+                            <button type="submit" class="btn btn-{% if attendee.isCheckedIn %}secondary{% else %}info{% endif %} w-100">
+                                <i class="bi bi-{% if attendee.isCheckedIn %}box-arrow-left{% else %}box-arrow-in-right{% endif %}"></i>
+                                {% if attendee.isCheckedIn %}Check Out{% else %}Check In{% endif %}
+                            </button>
+                        </form>
+
+                        <!-- Delete -->
+                        <form method="post" action="{{ path('admin_attendee_delete', {'id': attendee.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-' ~ attendee.id) }}">
+                            <button type="submit" 
+                                    class="btn btn-outline-danger w-100" 
+                                    onclick="return confirm('Are you sure you want to remove this attendee? This action cannot be undone.')">
+                                <i class="bi bi-trash"></i> Remove Attendee
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Timeline -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Registration Timeline</h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Registered</h6>
+                                <small class="text-muted">{{ attendee.registeredAt|date('M j, Y g:i A') }}</small>
+                            </div>
+                        </div>
+                        
+                        {% if attendee.emailVerifiedAt %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Email Verified</h6>
+                                <small class="text-muted">{{ attendee.emailVerifiedAt|date('M j, Y g:i A') }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if attendee.checkedInAt %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info"></div>
+                            <div class="timeline-content">
+                                <h6 class="mb-1">Checked In</h6>
+                                <small class="text-muted">{{ attendee.checkedInAt|date('M j, Y g:i A') }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -25px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 3px #e9ecef;
+}
+
+.timeline-content {
+    margin-left: 10px;
+}
+</style>
+{% endblock %}

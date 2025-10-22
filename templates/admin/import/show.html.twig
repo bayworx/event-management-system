@@ -1,0 +1,275 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Import Details - {{ import.filename }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-file-text"></i> Import Details</h1>
+                <div>
+                    <a href="{{ path('admin_import_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Imports
+                    </a>
+                    {% if import.status == 'pending' %}
+                        <a href="{{ path('admin_import_preview', {id: import.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Preview Data
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Import Status -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="bi bi-info-circle"></i> Import Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-3">File:</dt>
+                                <dd class="col-sm-9">{{ import.filename }}</dd>
+
+                                <dt class="col-sm-3">Type:</dt>
+                                <dd class="col-sm-9">
+                                    <span class="badge bg-info">{{ import.importTypeLabel }}</span>
+                                </dd>
+
+                                <dt class="col-sm-3">Status:</dt>
+                                <dd class="col-sm-9">
+                                    <span class="badge bg-{{ import.statusColor }}">{{ import.statusLabel }}</span>
+                                    {% if import.status == 'processing' %}
+                                        <div class="spinner-border spinner-border-sm ms-2" role="status">
+                                            <span class="visually-hidden">Processing...</span>
+                                        </div>
+                                    {% endif %}
+                                </dd>
+
+                                <dt class="col-sm-3">Total Rows:</dt>
+                                <dd class="col-sm-9">{{ import.totalRows }}</dd>
+
+                                {% if import.isCompleted %}
+                                    <dt class="col-sm-3">Successful:</dt>
+                                    <dd class="col-sm-9">
+                                        <span class="text-success">{{ import.successfulRows }}</span>
+                                    </dd>
+
+                                    <dt class="col-sm-3">Failed:</dt>
+                                    <dd class="col-sm-9">
+                                        <span class="text-danger">{{ import.failedRows }}</span>
+                                    </dd>
+
+                                    <dt class="col-sm-3">Success Rate:</dt>
+                                    <dd class="col-sm-9">
+                                        <div class="progress" style="height: 25px;">
+                                            <div class="progress-bar bg-success" role="progressbar" 
+                                                 style="width: {{ import.successRate }}%" 
+                                                 aria-valuenow="{{ import.successRate }}" aria-valuemin="0" aria-valuemax="100">
+                                                {{ import.successRate|number_format(1) }}%
+                                            </div>
+                                        </div>
+                                    </dd>
+                                {% endif %}
+
+                                <dt class="col-sm-3">Created:</dt>
+                                <dd class="col-sm-9">{{ import.createdAt|date('M j, Y g:i A') }}</dd>
+
+                                {% if import.processedAt %}
+                                    <dt class="col-sm-3">Processed:</dt>
+                                    <dd class="col-sm-9">{{ import.processedAt|date('M j, Y g:i A') }}</dd>
+                                {% endif %}
+
+                                <dt class="col-sm-3">Created By:</dt>
+                                <dd class="col-sm-9">
+                                    {{ import.createdBy.name }}
+                                    <br><small class="text-muted">{{ import.createdBy.email }}</small>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Import Results -->
+                    {% if import.results is not empty %}
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="bi bi-check-circle"></i> Import Results</h5>
+                            </div>
+                            <div class="card-body">
+                                {% for type, messages in import.results %}
+                                    <div class="mb-4">
+                                        <h6 class="text-capitalize">{{ type|replace({'_': ' '}) }} ({{ messages|length }} items)</h6>
+                                        {% if messages is not empty %}
+                                            <div class="accordion" id="accordion-{{ type }}">
+                                                <div class="accordion-item">
+                                                    <h2 class="accordion-header" id="heading-{{ type }}">
+                                                        <button class="accordion-button collapsed" type="button" 
+                                                                data-bs-toggle="collapse" data-bs-target="#collapse-{{ type }}" 
+                                                                aria-expanded="false" aria-controls="collapse-{{ type }}">
+                                                            View {{ type|replace({'_': ' '}) }} Details
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapse-{{ type }}" class="accordion-collapse collapse" 
+                                                         aria-labelledby="heading-{{ type }}" data-bs-parent="#accordion-{{ type }}">
+                                                        <div class="accordion-body">
+                                                            <ul class="list-unstyled">
+                                                                {% for message in messages %}
+                                                                    <li class="mb-1">
+                                                                        <i class="bi bi-check text-success"></i>
+                                                                        {{ message }}
+                                                                    </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Import Errors -->
+                    {% if import.errors is not empty %}
+                        <div class="card mb-4">
+                            <div class="card-header bg-danger text-white">
+                                <h5><i class="bi bi-exclamation-triangle"></i> Import Errors</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-danger">
+                                    <strong>{{ import.errors|length }} error(s) occurred during import:</strong>
+                                </div>
+                                <ul class="list-unstyled">
+                                    {% for error in import.errors %}
+                                        <li class="mb-2">
+                                            <div class="d-flex">
+                                                <i class="bi bi-x-circle text-danger me-2 mt-1"></i>
+                                                <div>
+                                                    <strong>{{ error.message }}</strong>
+                                                    {% if error.row is defined and error.row %}
+                                                        <br><small class="text-muted">Row: {{ error.row }}</small>
+                                                    {% endif %}
+                                                    {% if error.timestamp is defined %}
+                                                        <br><small class="text-muted">{{ error.timestamp }}</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Actions -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6><i class="bi bi-gear"></i> Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                {% if import.status == 'pending' %}
+                                    <a href="{{ path('admin_import_preview', {id: import.id}) }}" class="btn btn-primary">
+                                        <i class="bi bi-search"></i> Preview Data
+                                    </a>
+                                    <form method="post" action="{{ path('admin_import_execute', {id: import.id}) }}">
+                                        <button type="submit" class="btn btn-success w-100" 
+                                                onclick="return confirm('Execute this import? This will create/update data in your system.')">
+                                            <i class="bi bi-play-fill"></i> Execute Import
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                {% if import.status in ['pending', 'processing'] %}
+                                    <form method="post" action="{{ path('admin_import_cancel', {id: import.id}) }}">
+                                        <button type="submit" class="btn btn-warning w-100" 
+                                                onclick="return confirm('Cancel this import?')">
+                                            <i class="bi bi-x-lg"></i> Cancel Import
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                {% if import.status in ['completed', 'failed', 'cancelled'] %}
+                                    <form method="post" action="{{ path('admin_import_delete', {id: import.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete-import-' ~ import.id) }}">
+                                        <button type="submit" class="btn btn-outline-danger w-100" 
+                                                onclick="return confirm('Delete this import record?')">
+                                            <i class="bi bi-trash"></i> Delete Import
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    {% if import.isCompleted %}
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6><i class="bi bi-bar-chart"></i> Quick Statistics</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <h4 class="text-success mb-0">{{ import.successfulRows }}</h4>
+                                            <small class="text-muted">Successful</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-2">
+                                            <h4 class="text-danger mb-0">{{ import.failedRows }}</h4>
+                                            <small class="text-muted">Failed</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Import Tips -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6><i class="bi bi-lightbulb"></i> Import Tips</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <small>Review the preview before executing imports</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <small>Use the provided CSV templates for best results</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <small>Ensure date formats are consistent (YYYY-MM-DD)</small>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <small>Duplicate entries will be skipped automatically</small>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-refresh for processing imports
+{% if import.status == 'processing' %}
+    setTimeout(() => {
+        window.location.reload();
+    }, 5000); // Refresh every 5 seconds if processing
+{% endif %}
+</script>
+{% endblock %}

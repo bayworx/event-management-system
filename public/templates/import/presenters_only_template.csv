@@ -1,0 +1,6 @@
+event_title,agenda_title,first_name,last_name,email,bio,title,organization
+"Annual Tech Conference","Opening Keynote","Jane","Smith","jane.smith@email.com","Technology evangelist with 15 years experience in enterprise solutions","CTO","Innovation Labs"
+"Annual Tech Conference","Cloud Computing Workshop","Bob","Wilson","bob.wilson@email.com","Cloud architect and consultant with expertise in AWS and Azure","Senior Architect","Cloud Systems Inc"
+"Annual Tech Conference","AI and Machine Learning Panel","Alice","Johnson","alice.johnson@email.com","AI researcher and data scientist specializing in machine learning algorithms","Lead Data Scientist","AI Research Corp"
+"Annual Tech Conference","AI and Machine Learning Panel","Tom","Anderson","tom.anderson@email.com","Machine learning engineer with focus on production ML systems","ML Engineer","Tech Innovations"
+"Annual Tech Conference","Closing Remarks","Robert","Davis","robert.davis@email.com","Event organizer and technology industry veteran","CEO","Event Management Solutions"

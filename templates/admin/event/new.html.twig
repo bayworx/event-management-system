@@ -1,0 +1,299 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Create Event - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Create Event</h1>
+                    <small class="text-muted">Create a new event</small>
+                </div>
+                <a href="{{ path('admin_event_index') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Events
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.title) }}
+                                {{ form_widget(form.title) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.title) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.description) }}
+                                {{ form_widget(form.description) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.description) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.startDate) }}
+                                {{ form_widget(form.startDate) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.startDate) }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.endDate) }}
+                                {{ form_widget(form.endDate) }}
+                                {% if form.endDate.vars.help %}
+                                    <div class="form-text">{{ form.endDate.vars.help }}</div>
+                                {% endif %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.endDate) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form_label(form.location) }}
+                                {{ form_widget(form.location) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.location) }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                {{ form_label(form.maxAttendees) }}
+                                {{ form_widget(form.maxAttendees) }}
+                                {% if form.maxAttendees.vars.help %}
+                                    <div class="form-text">{{ form.maxAttendees.vars.help }}</div>
+                                {% endif %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.maxAttendees) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.bannerFile) }}
+                                {{ form_widget(form.bannerFile) }}
+                                {% if form.bannerFile.vars.help %}
+                                    <div class="form-text">{{ form.bannerFile.vars.help }}</div>
+                                {% endif %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.bannerFile) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event Presenters -->
+                        <div class="row" id="presenters">
+                            <div class="col-12 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="bi bi-person-video3 text-primary"></i>
+                                            Event Presenters
+                                        </h6>
+                                        <p class="small text-muted mb-3">Add and manage presenters for this event. You can assign existing presenters or create new ones.</p>
+                                        
+                                        <div class="presenters-container">
+                                            <div id="presenter-collection" data-prototype="{{ form_widget(form.eventPresenters.vars.prototype)|e('html_attr') }}">
+                                                {% for presenterForm in form.eventPresenters %}
+                                                    <div class="presenter-item card mb-3">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <h6 class="mb-0">Presenter #{{ loop.index }}</h6>
+                                                                <button type="button" class="btn btn-outline-danger btn-sm remove-presenter">
+                                                                    <i class="bi bi-trash"></i> Remove
+                                                                </button>
+                                                            </div>
+                                                            <div class="presenter-form">
+                                                                {{ form_widget(presenterForm) }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-flex gap-2 mt-3">
+                                            <button type="button" class="btn btn-outline-primary btn-sm add-presenter">
+                                                <i class="bi bi-plus-circle"></i> Add Presenter
+                                            </button>
+                                            <a href="{{ path('admin_presenter_new') }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-person-plus"></i> Create New Presenter
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Settings</h6>
+                                        
+                                        <div class="form-check mb-3">
+                                            {{ form_widget(form.isActive) }}
+                                            {{ form_label(form.isActive) }}
+                                            {% if form.isActive.vars.help %}
+                                                <div class="form-text">{{ form.isActive.vars.help }}</div>
+                                            {% endif %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form_errors(form.isActive) }}
+                                            </div>
+                                        </div>
+
+                                        {% if form.administrators is defined %}
+                                            <div class="mb-3">
+                                                {{ form_label(form.administrators) }}
+                                                {{ form_widget(form.administrators) }}
+                                                {% if form.administrators.vars.help %}
+                                                    <div class="form-text">{{ form.administrators.vars.help }}</div>
+                                                {% endif %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form_errors(form.administrators) }}
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="alert alert-info mb-0">
+                                                <i class="bi bi-info-circle"></i>
+                                                <strong>Note:</strong> You will be automatically assigned as an administrator for this event.
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{{ path('admin_event_index') }}" class="btn btn-secondary">
+                                        Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle"></i> Create Event
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle presenter collection
+    const presenterCollection = document.querySelector('#presenter-collection');
+    const addPresenterBtn = document.querySelector('.add-presenter');
+    
+    if (presenterCollection && addPresenterBtn) {
+        // Get the current number of presenters
+        let presenterIndex = presenterCollection.querySelectorAll('.presenter-item').length;
+        
+        addPresenterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get the prototype from the data attribute
+            const prototype = presenterCollection.getAttribute('data-prototype');
+            if (!prototype) {
+                console.error('Collection prototype not found');
+                console.log('presenterCollection element:', presenterCollection);
+                console.log('Available attributes:', presenterCollection.getAttributeNames());
+                return;
+            }
+            
+            // Replace the prototype name with the current index
+            const newForm = prototype.replace(/__presenter_prototype__/g, presenterIndex);
+            
+            // Create a wrapper div for the new presenter form
+            const wrapperDiv = document.createElement('div');
+            wrapperDiv.className = 'presenter-item card mb-3';
+            wrapperDiv.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Presenter #${presenterIndex + 1}</h6>
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-presenter">
+                            <i class="bi bi-trash"></i> Remove
+                        </button>
+                    </div>
+                    <div class="presenter-form">
+                        ${newForm}
+                    </div>
+                </div>
+            `;
+            
+            // Add the new form to the collection
+            presenterCollection.appendChild(wrapperDiv);
+            
+            // Add remove functionality to the new item
+            wrapperDiv.querySelector('.remove-presenter').addEventListener('click', function() {
+                wrapperDiv.remove();
+                updatePresenterNumbers();
+            });
+            
+            presenterIndex++;
+            updatePresenterNumbers();
+        });
+        
+        // Add remove functionality to existing items
+        function attachRemoveListeners() {
+            document.querySelectorAll('.remove-presenter').forEach(function(btn) {
+                btn.replaceWith(btn.cloneNode(true)); // Remove existing listeners
+            });
+            
+            document.querySelectorAll('.remove-presenter').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    btn.closest('.presenter-item').remove();
+                    updatePresenterNumbers();
+                });
+            });
+        }
+        
+        // Update presenter numbers
+        function updatePresenterNumbers() {
+            const presenterItems = presenterCollection.querySelectorAll('.presenter-item');
+            presenterItems.forEach(function(item, index) {
+                const header = item.querySelector('h6');
+                if (header) {
+                    header.textContent = `Presenter #${index + 1}`;
+                }
+            });
+        }
+        
+        // Initialize existing items
+        attachRemoveListeners();
+    }
+});
+</script>
+
+<style>
+.presenter-item {
+    border: 1px solid #dee2e6;
+}
+
+.presenter-item .form-control,
+.presenter-item .form-select {
+    margin-bottom: 0.75rem;
+}
+
+.presenter-form .row {
+    margin-bottom: 0.75rem;
+}
+</style>
+{% endblock %}

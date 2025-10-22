@@ -1,0 +1,402 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Edit {{ event.title }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Edit Event</h1>
+                    <small class="text-muted">{{ event.title }}</small>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('admin_event_show', {'id': event.id}) }}" class="btn btn-outline-info">
+                        <i class="bi bi-info-circle"></i> View Details
+                    </a>
+                    <a href="{{ path('event_show', {'slug': event.slug}) }}" class="btn btn-outline-secondary" target="_blank">
+                        <i class="bi bi-eye"></i> Public Page
+                    </a>
+                    <a href="{{ path('admin_event_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Events
+                    </a>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.title) }}
+                                {{ form_widget(form.title) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.title) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.description) }}
+                                {{ form_widget(form.description) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.description) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.startDate) }}
+                                {{ form_widget(form.startDate) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.startDate) }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form_label(form.endDate) }}
+                                {{ form_widget(form.endDate) }}
+                                {% if form.endDate.vars.help %}
+                                    <div class="form-text">{{ form.endDate.vars.help }}</div>
+                                {% endif %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.endDate) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                {{ form_label(form.location) }}
+                                {{ form_widget(form.location) }}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.location) }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                {{ form_label(form.maxAttendees) }}
+                                {{ form_widget(form.maxAttendees) }}
+                                {% if form.maxAttendees.vars.help %}
+                                    <div class="form-text">{{ form.maxAttendees.vars.help }}</div>
+                                {% endif %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.maxAttendees) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                {{ form_label(form.bannerFile) }}
+                                {{ form_widget(form.bannerFile) }}
+                                {% if form.bannerFile.vars.help %}
+                                    <div class="form-text">{{ form.bannerFile.vars.help }}</div>
+                                {% endif %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form_errors(form.bannerFile) }}
+                                </div>
+                                
+                                {% if event.bannerImage %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">Current banner:</small><br>
+                                        <img src="{{ asset('uploads/events/' ~ event.bannerImage) }}" 
+                                             alt="{{ event.title }}" 
+                                             class="img-thumbnail" 
+                                             style="max-height: 150px;">
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Event Presenters -->
+                        <div class="row" id="presenters">
+                            <div class="col-12 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="bi bi-person-video3 text-primary"></i>
+                                            Event Presenters
+                                        </h6>
+                                        <p class="small text-muted mb-3">Add and manage presenters for this event. You can assign existing presenters or create new ones.</p>
+                                        
+                                        <div class="presenters-container">
+                                            <div id="presenter-collection" data-prototype="{{ form_widget(form.eventPresenters.vars.prototype)|e('html_attr') }}">
+                                                {% for presenterForm in form.eventPresenters %}
+                                                    <div class="presenter-item card mb-3">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <h6 class="mb-0">Presenter #{{ loop.index }}</h6>
+                                                                <button type="button" class="btn btn-outline-danger btn-sm remove-presenter">
+                                                                    <i class="bi bi-trash"></i> Remove
+                                                                </button>
+                                                            </div>
+                                                            <div class="presenter-form">
+                                                                {{ form_widget(presenterForm) }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-flex gap-2 mt-3">
+                                            <button type="button" class="btn btn-outline-primary btn-sm add-presenter">
+                                                <i class="bi bi-plus-circle"></i> Add Presenter
+                                            </button>
+                                            <a href="{{ path('admin_presenter_new') }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-person-plus"></i> Create New Presenter
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Settings</h6>
+                                        
+                                        <div class="form-check mb-3">
+                                            {{ form_widget(form.isActive) }}
+                                            {{ form_label(form.isActive) }}
+                                            {% if form.isActive.vars.help %}
+                                                <div class="form-text">{{ form.isActive.vars.help }}</div>
+                                            {% endif %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form_errors(form.isActive) }}
+                                            </div>
+                                        </div>
+
+                                        {% if form.administrators is defined %}
+                                            <div class="mb-3">
+                                                {{ form_label(form.administrators) }}
+                                                {{ form_widget(form.administrators) }}
+                                                {% if form.administrators.vars.help %}
+                                                    <div class="form-text">{{ form.administrators.vars.help }}</div>
+                                                {% endif %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form_errors(form.administrators) }}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
+                                        <!-- Event Stats -->
+                                        <div class="row mt-3">
+                                            <div class="col-md-6">
+                                                <strong>Current Attendees:</strong> {{ event.attendeesCount }}
+                                                {% if event.maxAttendees %} / {{ event.maxAttendees }}{% endif %}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Event URL:</strong> 
+                                                <a href="{{ path('event_show', {'slug': event.slug}) }}" target="_blank" class="small">
+                                                    {{ event.slug }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{{ path('admin_event_index') }}" class="btn btn-secondary">
+                                        Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i> Update Event
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle presenter collection
+    const presenterCollection = document.querySelector('#presenter-collection');
+    const addPresenterBtn = document.querySelector('.add-presenter');
+    
+    if (presenterCollection && addPresenterBtn) {
+        // Get the current number of presenters
+        let presenterIndex = presenterCollection.querySelectorAll('.presenter-item').length;
+        
+        addPresenterBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get the prototype from the data attribute
+            const prototype = presenterCollection.getAttribute('data-prototype');
+            if (!prototype) {
+                console.error('Collection prototype not found');
+                console.log('presenterCollection element:', presenterCollection);
+                console.log('Available attributes:', presenterCollection.getAttributeNames());
+                return;
+            }
+            
+            // Replace the prototype name with the current index
+            let newForm = prototype.replace(/__presenter_prototype__/g, presenterIndex);
+            
+            // Fallback: If prototype is empty or malformed, create a basic form manually
+            if (prototype.trim().length < 50) {
+                console.warn('Prototype seems too short, using manual form creation');
+                newForm = createManualPresenterForm(presenterIndex);
+            }
+            
+            // Create a wrapper div for the new presenter form
+            const wrapperDiv = document.createElement('div');
+            wrapperDiv.className = 'presenter-item card mb-3';
+            wrapperDiv.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Presenter #${presenterIndex + 1}</h6>
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-presenter">
+                            <i class="bi bi-trash"></i> Remove
+                        </button>
+                    </div>
+                    <div class="presenter-form">
+                        ${newForm}
+                    </div>
+                </div>
+            `;
+            
+            // Add the new form to the collection
+            presenterCollection.appendChild(wrapperDiv);
+            
+            // Load presenter options if using manual form
+            if (prototype.trim().length < 50) {
+                loadPresenterOptions(wrapperDiv.querySelector('select'));
+            }
+            
+            // Add remove functionality to the new item
+            wrapperDiv.querySelector('.remove-presenter').addEventListener('click', function() {
+                wrapperDiv.remove();
+                updatePresenterNumbers();
+            });
+            
+            presenterIndex++;
+            updatePresenterNumbers();
+        });
+        
+        // Add remove functionality to existing items
+        function attachRemoveListeners() {
+            document.querySelectorAll('.remove-presenter').forEach(function(btn) {
+                btn.replaceWith(btn.cloneNode(true)); // Remove existing listeners
+            });
+            
+            document.querySelectorAll('.remove-presenter').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    btn.closest('.presenter-item').remove();
+                    updatePresenterNumbers();
+                });
+            });
+        }
+        
+        // Update presenter numbers
+        function updatePresenterNumbers() {
+            const presenterItems = presenterCollection.querySelectorAll('.presenter-item');
+            presenterItems.forEach(function(item, index) {
+                const header = item.querySelector('h6');
+                if (header) {
+                    header.textContent = `Presenter #${index + 1}`;
+                }
+            });
+        }
+        
+        // Initialize existing items
+        attachRemoveListeners();
+    }
+    
+    // Fallback function to create presenter form manually
+    function createManualPresenterForm(index) {
+        return `
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <label for="event_eventPresenters_${index}_presenter">Presenter</label>
+                    <select id="event_eventPresenters_${index}_presenter" name="event[eventPresenters][${index}][presenter]" class="form-select">
+                        <option value="">Select a presenter</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="event_eventPresenters_${index}_presentationTitle">Presentation Title</label>
+                    <input type="text" id="event_eventPresenters_${index}_presentationTitle" name="event[eventPresenters][${index}][presentationTitle]" class="form-control" placeholder="Enter presentation title (optional)">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="event_eventPresenters_${index}_sortOrder">Display Order</label>
+                    <input type="number" id="event_eventPresenters_${index}_sortOrder" name="event[eventPresenters][${index}][sortOrder]" class="form-control" min="1" placeholder="Auto-assigned if left blank">
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="event_eventPresenters_${index}_presentationDescription">Presentation Description</label>
+                    <textarea id="event_eventPresenters_${index}_presentationDescription" name="event[eventPresenters][${index}][presentationDescription]" class="form-control" rows="3" placeholder="Enter presentation description (optional)"></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="event_eventPresenters_${index}_startTime">Start Time</label>
+                    <input type="time" id="event_eventPresenters_${index}_startTime" name="event[eventPresenters][${index}][startTime]" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="event_eventPresenters_${index}_endTime">End Time</label>
+                    <input type="time" id="event_eventPresenters_${index}_endTime" name="event[eventPresenters][${index}][endTime]" class="form-control">
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="form-check">
+                        <input type="checkbox" id="event_eventPresenters_${index}_isVisible" name="event[eventPresenters][${index}][isVisible]" class="form-check-input" value="1" checked>
+                        <label for="event_eventPresenters_${index}_isVisible" class="form-check-label">Visible to attendees</label>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Function to load presenter options via AJAX
+    function loadPresenterOptions(selectElement) {
+        if (!selectElement) return;
+        
+        fetch('{{ path('admin_presenter_search_api') }}?term=')
+            .then(response => response.json())
+            .then(data => {
+                // Clear existing options except the first one
+                while (selectElement.children.length > 1) {
+                    selectElement.removeChild(selectElement.lastChild);
+                }
+                
+                // Add presenter options
+                data.forEach(presenter => {
+                    const option = document.createElement('option');
+                    option.value = presenter.id;
+                    option.textContent = presenter.fullName;
+                    selectElement.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading presenters:', error);
+            });
+    }
+});
+</script>
+
+<style>
+.presenter-item {
+    border: 1px solid #dee2e6;
+}
+
+.presenter-item .form-control,
+.presenter-item .form-select {
+    margin-bottom: 0.75rem;
+}
+
+.presenter-form .row {
+    margin-bottom: 0.75rem;
+}
+</style>
+{% endblock %}

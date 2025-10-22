@@ -1,0 +1,223 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}User Management - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">User Management</h1>
+                    <small class="text-muted">Manage administrator accounts</small>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('admin_user_new') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Administrator
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {{ form_start(filter_form, {'attr': {'class': 'row g-3 align-items-end'}}) }}
+                        <div class="col-md-4">
+                            {{ form_widget(filter_form.search) }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ form_label(filter_form.isActive) }}
+                            {{ form_widget(filter_form.isActive) }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ form_label(filter_form.isSuperAdmin) }}
+                            {{ form_widget(filter_form.isSuperAdmin) }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ form_label(filter_form.department) }}
+                            {{ form_widget(filter_form.department) }}
+                        </div>
+                        <div class="col-md-2">
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button type="submit" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                    <i class="bi bi-search"></i> Filter
+                                </button>
+                                <a href="{{ path('admin_user_index') }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-x-circle"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    {{ form_end(filter_form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {% if pagination.items|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Administrator</th>
+                                        <th>Department</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Last Login</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in pagination.items %}
+                                        <tr {% if not user.isActive %}class="table-secondary"{% endif %}>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; border-radius: 50%;">
+                                                        {{ user.name|slice(0,1)|upper }}
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-semibold">{{ user.name }}</div>
+                                                        <small class="text-muted">{{ user.email }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if user.department %}
+                                                    <span class="badge bg-light text-dark">{{ user.department }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if user.isSuperAdmin %}
+                                                    <span class="badge bg-danger">Super Admin</span>
+                                                {% else %}
+                                                    <span class="badge bg-primary">Administrator</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if user.isActive %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">{{ user.createdAt|date('M j, Y') }}</small>
+                                            </td>
+                                            <td>
+                                                {% if user.lastLoginAt %}
+                                                    <small class="text-muted">{{ user.lastLoginAt|date('M j, Y') }}</small>
+                                                {% else %}
+                                                    <small class="text-muted">Never</small>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{{ path('admin_user_show', {'id': user.id}) }}" 
+                                                       class="btn btn-outline-secondary" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="View Details">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_user_edit', {'id': user.id}) }}" 
+                                                       class="btn btn-outline-primary" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    
+                                                    {% if user.id != app.user.id %}
+                                                        <!-- Toggle Status -->
+                                                        <form method="post" 
+                                                              action="{{ path('admin_user_toggle_status', {'id': user.id}) }}" 
+                                                              class="d-inline">
+                                                            <input type="hidden" 
+                                                                   name="_token" 
+                                                                   value="{{ csrf_token('toggle-status-' ~ user.id) }}">
+                                                            <button type="submit" 
+                                                                    class="btn btn-outline-{% if user.isActive %}warning{% else %}success{% endif %}" 
+                                                                    data-bs-toggle="tooltip" 
+                                                                    title="{% if user.isActive %}Deactivate{% else %}Activate{% endif %}"
+                                                                    onclick="return confirm('Are you sure you want to {% if user.isActive %}deactivate{% else %}activate{% endif %} this administrator?')">
+                                                                <i class="bi bi-{% if user.isActive %}pause{% else %}play{% endif %}"></i>
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <!-- Delete -->
+                                                        <form method="post" 
+                                                              action="{{ path('admin_user_delete', {'id': user.id}) }}" 
+                                                              class="d-inline">
+                                                            <input type="hidden" 
+                                                                   name="_token" 
+                                                                   value="{{ csrf_token('delete-' ~ user.id) }}">
+                                                            <button type="submit" 
+                                                                    class="btn btn-outline-danger" 
+                                                                    data-bs-toggle="tooltip" 
+                                                                    title="Delete"
+                                                                    onclick="return confirm('Are you sure you want to delete this administrator? This action cannot be undone.')">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    {% else %}
+                                                        <button type="button" 
+                                                                class="btn btn-outline-secondary" 
+                                                                disabled
+                                                                data-bs-toggle="tooltip" 
+                                                                title="Cannot modify your own account">
+                                                            <i class="bi bi-lock"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted small">
+                                {% set first_item = ((pagination.currentPageNumber - 1) * pagination.itemNumberPerPage) + 1 %}
+                                {% set last_item = pagination.currentPageNumber * pagination.itemNumberPerPage %}
+                                {% if last_item > pagination.totalItemCount %}
+                                    {% set last_item = pagination.totalItemCount %}
+                                {% endif %}
+                                Showing {{ first_item }} to {{ last_item }} of {{ pagination.totalItemCount }} administrators
+                            </div>
+                            {{ knp_pagination_render(pagination) }}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-person-x text-muted" style="font-size: 4rem;"></i>
+                            <h5 class="text-muted mt-3">No administrators found</h5>
+                            <p class="text-muted">No administrators match your current filters.</p>
+                            <a href="{{ path('admin_user_new') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Add First Administrator
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+{% endblock %}

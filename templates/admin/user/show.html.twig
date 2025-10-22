@@ -1,0 +1,215 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ administrator.name }} - Administrator Details - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Administrator Details</h1>
+                    <small class="text-muted">{{ administrator.name }}</small>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('admin_user_edit', {'id': administrator.id}) }}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                    <a href="{{ path('admin_user_index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Users
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Profile Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; border-radius: 50%; font-size: 2rem;">
+                        {{ administrator.name|slice(0,1)|upper }}
+                    </div>
+                    
+                    <h5 class="card-title mb-1">{{ administrator.name }}</h5>
+                    <p class="text-muted mb-3">{{ administrator.email }}</p>
+                    
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        {% if administrator.isActive %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                        
+                        {% if administrator.isSuperAdmin %}
+                            <span class="badge bg-danger">Super Administrator</span>
+                        {% else %}
+                            <span class="badge bg-primary">Administrator</span>
+                        {% endif %}
+                    </div>
+
+                    {% if administrator.id != app.user.id %}
+                    <div class="d-grid gap-2">
+                        <!-- Toggle Status -->
+                        <form method="post" action="{{ path('admin_user_toggle_status', {'id': administrator.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle-status-' ~ administrator.id) }}">
+                            <button type="submit" 
+                                    class="btn btn-{% if administrator.isActive %}warning{% else %}success{% endif %} btn-sm w-100"
+                                    onclick="return confirm('Are you sure you want to {% if administrator.isActive %}deactivate{% else %}activate{% endif %} this administrator?')">
+                                <i class="bi bi-{% if administrator.isActive %}pause{% else %}play{% endif %}"></i>
+                                {% if administrator.isActive %}Deactivate{% else %}Activate{% endif %}
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-primary mb-1">{{ administrator.managedEvents|length }}</h4>
+                                <small class="text-muted">Managed Events</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-info mb-1">
+                                {% set daysSince = date().diff(administrator.createdAt).days %}
+                                {{ daysSince }}
+                            </h4>
+                            <small class="text-muted">Days Active</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <!-- Basic Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Basic Information</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Full Name</dt>
+                        <dd class="col-sm-9">{{ administrator.name }}</dd>
+
+                        <dt class="col-sm-3">Email Address</dt>
+                        <dd class="col-sm-9">
+                            <a href="mailto:{{ administrator.email }}">{{ administrator.email }}</a>
+                        </dd>
+
+                        <dt class="col-sm-3">Department</dt>
+                        <dd class="col-sm-9">
+                            {% if administrator.department %}
+                                <span class="badge bg-light text-dark">{{ administrator.department }}</span>
+                            {% else %}
+                                <span class="text-muted">Not specified</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-3">Account Status</dt>
+                        <dd class="col-sm-9">
+                            {% if administrator.isActive %}
+                                <span class="text-success"><i class="bi bi-check-circle"></i> Active</span>
+                            {% else %}
+                                <span class="text-danger"><i class="bi bi-x-circle"></i> Inactive</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-3">Role</dt>
+                        <dd class="col-sm-9">
+                            {% if administrator.isSuperAdmin %}
+                                <span class="text-danger"><i class="bi bi-shield-fill"></i> Super Administrator</span>
+                            {% else %}
+                                <span class="text-primary"><i class="bi bi-person-badge"></i> Administrator</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Account Timeline -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Account Timeline</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Created</dt>
+                        <dd class="col-sm-9">
+                            <i class="bi bi-calendar-plus text-primary"></i>
+                            {{ administrator.createdAt|date('F j, Y \\a\\t g:i A') }}
+                            <small class="text-muted">({{ administrator.createdAt|time_diff }} ago)</small>
+                        </dd>
+
+                        <dt class="col-sm-3">Last Login</dt>
+                        <dd class="col-sm-9">
+                            {% if administrator.lastLoginAt %}
+                                <i class="bi bi-clock text-success"></i>
+                                {{ administrator.lastLoginAt|date('F j, Y \\a\\t g:i A') }}
+                                <small class="text-muted">({{ administrator.lastLoginAt|time_diff }} ago)</small>
+                            {% else %}
+                                <i class="bi bi-clock text-muted"></i>
+                                <span class="text-muted">Never logged in</span>
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Managed Events -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent border-0">
+                    <h6 class="card-title mb-0">Managed Events</h6>
+                </div>
+                <div class="card-body">
+                    {% if administrator.managedEvents|length > 0 %}
+                        <div class="list-group list-group-flush">
+                            {% for event in administrator.managedEvents %}
+                                <div class="list-group-item border-0 px-0">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ event.title }}</h6>
+                                        <small class="text-muted">{{ event.startDate|date('M j, Y') }}</small>
+                                    </div>
+                                    <p class="mb-1">
+                                        {{ event.description|slice(0, 100) }}{% if event.description|length > 100 %}...{% endif %}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            {% if event.location %}
+                                                <i class="bi bi-geo-alt"></i> {{ event.location }}
+                                            {% endif %}
+                                        </small>
+                                        {% set now = date() %}
+                                        {% if event.startDate > now %}
+                                            <span class="badge bg-success">Upcoming</span>
+                                        {% elseif event.endDate and event.endDate >= now %}
+                                            <span class="badge bg-primary">Ongoing</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Past</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No events assigned yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

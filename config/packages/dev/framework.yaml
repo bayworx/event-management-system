@@ -1,0 +1,9 @@
+# Development environment specific configuration
+framework:
+    php_errors:
+        log: true
+        # Never throw deprecation warnings in development
+        throw: false
+    
+    # Suppress deprecation warnings for PHP 8.4 + Symfony 6.1 compatibility
+    error_controller: null

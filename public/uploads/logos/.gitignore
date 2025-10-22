@@ -1,0 +1,3 @@
+# Ignore all logo files except this .gitignore
+*
+!.gitignore

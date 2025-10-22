@@ -1,0 +1,253 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Attendee Management - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">Attendee Management</h1>
+                    <small class="text-muted">Manage event attendees and registrations</small>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('admin_attendee_export', app.request.query.all) }}" class="btn btn-success">
+                        <i class="bi bi-download"></i> Export CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search Attendees</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="search" 
+                                   id="search"
+                                   value="{{ search }}" 
+                                   placeholder="Search by name, email, or organization">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="event" class="form-label">Event</label>
+                            <select name="event" id="event" class="form-select">
+                                <option value="">All Events</option>
+                                {% for event in available_events %}
+                                    <option value="{{ event.id }}" 
+                                            {% if event_filter == (event.id ~ '') %}selected{% endif %}>
+                                        {{ event.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="verified" {% if status_filter == 'verified' %}selected{% endif %}>Verified</option>
+                                <option value="unverified" {% if status_filter == 'unverified' %}selected{% endif %}>Unverified</option>
+                                <option value="checked_in" {% if status_filter == 'checked_in' %}selected{% endif %}>Checked In</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="bi bi-search"></i> Filter
+                                </button>
+                                <a href="{{ path('admin_attendee_index') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendees Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {% if pagination.items|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Attendee</th>
+                                        <th>Event</th>
+                                        <th>Contact</th>
+                                        <th>Organization</th>
+                                        <th>Status</th>
+                                        <th>Registration</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attendee in pagination.items %}
+                                        <tr {% if not attendee.isVerified %}class="table-warning"{% elseif attendee.isCheckedIn %}class="table-success"{% endif %}>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" 
+                                                         style="width: 40px; height: 40px; border-radius: 50%;">
+                                                        {{ attendee.name|slice(0,1)|upper }}
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-semibold">{{ attendee.name }}</div>
+                                                        <small class="text-muted">{{ attendee.email }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-medium">{{ attendee.event.title }}</div>
+                                                <small class="text-muted">{{ attendee.event.startDate|date('M j, Y') }}</small>
+                                            </td>
+                                            <td>
+                                                {% if attendee.phone %}
+                                                    <div class="small">
+                                                        <i class="bi bi-telephone text-muted"></i>
+                                                        {{ attendee.phone }}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="small">
+                                                    <i class="bi bi-envelope text-muted"></i>
+                                                    <a href="mailto:{{ attendee.email }}" class="text-decoration-none">
+                                                        {{ attendee.email }}
+                                                    </a>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if attendee.organization %}
+                                                    <div class="fw-medium">{{ attendee.organization }}</div>
+                                                    {% if attendee.jobTitle %}
+                                                        <small class="text-muted">{{ attendee.jobTitle }}</small>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <small class="text-muted">—</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column gap-1">
+                                                    {% if attendee.isVerified %}
+                                                        <span class="badge bg-success">Verified</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning">Unverified</span>
+                                                    {% endif %}
+                                                    
+                                                    {% if attendee.isCheckedIn %}
+                                                        <span class="badge bg-info">Checked In</span>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="small">
+                                                    <strong>Registered:</strong><br>
+                                                    {{ attendee.registeredAt|date('M j, Y g:i A') }}
+                                                </div>
+                                                {% if attendee.emailVerifiedAt %}
+                                                    <div class="small text-muted mt-1">
+                                                        <strong>Verified:</strong><br>
+                                                        {{ attendee.emailVerifiedAt|date('M j, Y g:i A') }}
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{{ path('admin_attendee_show', {'id': attendee.id}) }}" 
+                                                       class="btn btn-outline-secondary" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="View Details">
+                                                        <i class="bi bi-info-circle"></i>
+                                                    </a>
+                                                    
+                                                    <!-- Toggle Verification -->
+                                                    <form method="post" 
+                                                          action="{{ path('admin_attendee_toggle_verification', {'id': attendee.id}) }}" 
+                                                          class="d-inline">
+                                                        <input type="hidden" 
+                                                               name="_token" 
+                                                               value="{{ csrf_token('toggle-verification-' ~ attendee.id) }}">
+                                                        <button type="submit" 
+                                                                class="btn btn-outline-{% if attendee.isVerified %}warning{% else %}success{% endif %}" 
+                                                                data-bs-toggle="tooltip" 
+                                                                title="{% if attendee.isVerified %}Mark Unverified{% else %}Mark Verified{% endif %}">
+                                                            <i class="bi bi-{% if attendee.isVerified %}shield-x{% else %}shield-check{% endif %}"></i>
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <!-- Toggle Check-in -->
+                                                    <form method="post" 
+                                                          action="{{ path('admin_attendee_toggle_checkin', {'id': attendee.id}) }}" 
+                                                          class="d-inline">
+                                                        <input type="hidden" 
+                                                               name="_token" 
+                                                               value="{{ csrf_token('toggle-checkin-' ~ attendee.id) }}">
+                                                        <button type="submit" 
+                                                                class="btn btn-outline-{% if attendee.isCheckedIn %}secondary{% else %}info{% endif %}" 
+                                                                data-bs-toggle="tooltip" 
+                                                                title="{% if attendee.isCheckedIn %}Check Out{% else %}Check In{% endif %}">
+                                                            <i class="bi bi-{% if attendee.isCheckedIn %}box-arrow-left{% else %}box-arrow-in-right{% endif %}"></i>
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <!-- Delete -->
+                                                    <form method="post" 
+                                                          action="{{ path('admin_attendee_delete', {'id': attendee.id}) }}" 
+                                                          class="d-inline">
+                                                        <input type="hidden" 
+                                                               name="_token" 
+                                                               value="{{ csrf_token('delete-' ~ attendee.id) }}">
+                                                        <button type="submit" 
+                                                                class="btn btn-outline-danger" 
+                                                                data-bs-toggle="tooltip" 
+                                                                title="Remove Attendee"
+                                                                onclick="return confirm('Are you sure you want to remove this attendee? This action cannot be undone.')">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div class="text-muted small">
+                                {% set currentPageFirstItem = (pagination.currentPageNumber - 1) * pagination.itemNumberPerPage + 1 %}
+                                {% set currentPageLastItem = min(pagination.currentPageNumber * pagination.itemNumberPerPage, pagination.totalItemCount) %}
+                                Showing {{ currentPageFirstItem }} to {{ currentPageLastItem }} of {{ pagination.totalItemCount }} attendees
+                            </div>
+                            {{ knp_pagination_render(pagination) }}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                            <h5 class="text-muted mt-3">No attendees found</h5>
+                            <p class="text-muted">No attendees match your current filters.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+{% endblock %}

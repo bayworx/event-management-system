@@ -1,0 +1,148 @@
+monolog:
+    channels:
+        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - security    # Security related events (login, logout, access denied)
+        - audit       # Configuration changes, admin actions
+        - event_mgmt  # Event management operations
+        - user_mgmt   # User management operations
+        - app_error   # Application specific errors
+
+when@dev:
+    monolog:
+        handlers:
+            main:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+                channels: ["!event", "!deprecation", "!security", "!audit", "!event_mgmt", "!user_mgmt", "!app_error"]
+            
+            # Security events logging
+            security:
+                type: stream
+                path: "%kernel.logs_dir%/security.log"
+                level: info
+                channels: [security]
+                formatter: monolog.formatter.line
+            
+            # Audit trail for admin actions
+            audit:
+                type: stream
+                path: "%kernel.logs_dir%/audit.log"
+                level: info
+                channels: [audit]
+                formatter: monolog.formatter.line
+            
+            # Event management operations
+            event_mgmt:
+                type: stream
+                path: "%kernel.logs_dir%/event_management.log"
+                level: info
+                channels: [event_mgmt]
+                formatter: monolog.formatter.line
+            
+            # User management operations
+            user_mgmt:
+                type: stream
+                path: "%kernel.logs_dir%/user_management.log"
+                level: info
+                channels: [user_mgmt]
+                formatter: monolog.formatter.line
+            
+            # Application specific errors
+            app_error:
+                type: stream
+                path: "%kernel.logs_dir%/app_errors.log"
+                level: error
+                channels: [app_error]
+                formatter: monolog.formatter.line
+            
+            # Handle deprecations separately - send to null to suppress completely
+            deprecation:
+                type: 'null'
+                channels: [deprecation]
+            
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine", "!console", "!deprecation"]
+
+when@test:
+    monolog:
+        handlers:
+            main:
+                type: fingers_crossed
+                action_level: error
+                handler: nested
+                excluded_http_codes: [404, 405]
+                channels: ["!event"]
+            nested:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+
+when@prod:
+    monolog:
+        handlers:
+            main:
+                type: fingers_crossed
+                action_level: error
+                handler: nested
+                excluded_http_codes: [404, 405]
+                buffer_size: 50 # How many messages should be saved? Prevent memory leaks
+                channels: ["!event", "!security", "!audit", "!event_mgmt", "!user_mgmt", "!app_error"]
+            nested:
+                type: stream
+                path: "%kernel.logs_dir%/app.log"
+                level: debug
+                formatter: monolog.formatter.json
+            
+            # Security events logging (always log in production)
+            security:
+                type: stream
+                path: "%kernel.logs_dir%/security.log"
+                level: info
+                channels: [security]
+                formatter: monolog.formatter.json
+            
+            # Audit trail for admin actions (always log in production)
+            audit:
+                type: stream
+                path: "%kernel.logs_dir%/audit.log"
+                level: info
+                channels: [audit]
+                formatter: monolog.formatter.json
+            
+            # Event management operations
+            event_mgmt:
+                type: stream
+                path: "%kernel.logs_dir%/event_management.log"
+                level: warning
+                channels: [event_mgmt]
+                formatter: monolog.formatter.json
+            
+            # User management operations
+            user_mgmt:
+                type: stream
+                path: "%kernel.logs_dir%/user_management.log"
+                level: warning
+                channels: [user_mgmt]
+                formatter: monolog.formatter.json
+            
+            # Application specific errors
+            app_error:
+                type: stream
+                path: "%kernel.logs_dir%/app_errors.log"
+                level: error
+                channels: [app_error]
+                formatter: monolog.formatter.json
+            
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine"]
+            
+            deprecation:
+                type: stream
+                channels: [deprecation]
+                path: "%kernel.logs_dir%/deprecation.log"
+                formatter: monolog.formatter.json

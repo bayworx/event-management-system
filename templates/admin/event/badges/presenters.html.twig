@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presenter Badges - {{ event.title }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0.5in;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+        }
+        
+        .badges-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px 0;
+        }
+        
+        .badge {
+            border: 3px solid #007bff;
+            border-radius: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            page-break-inside: avoid;
+            height: 280px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .badge::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+        
+        .badge-header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        
+        .badge-type {
+            background: #007bff;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        
+        .event-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #495057;
+            margin: 0;
+        }
+        
+        .event-date {
+            font-size: 11px;
+            color: #6c757d;
+            margin: 2px 0 0 0;
+        }
+        
+        .presenter-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .presenter-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #007bff;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        
+        .presenter-photo-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #007bff;
+            background: #007bff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .presenter-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #212529;
+            margin: 0 0 5px 0;
+            text-align: center;
+        }
+        
+        .presenter-title {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 0 0 5px 0;
+            text-align: center;
+        }
+        
+        .presenter-company {
+            font-size: 12px;
+            color: #007bff;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+            text-align: center;
+        }
+        
+        .presentation-title {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 4px solid #fff;
+            font-size: 12px;
+            font-weight: 600;
+            color: #495057;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .presentation-time {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #495057;
+            text-align: center;
+            margin-top: 5px;
+        }
+        
+        .badge-footer {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .badge {
+                break-inside: avoid;
+            }
+        }
+        
+        .print-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+        
+        .print-controls button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        .print-controls button:hover {
+            background: #0056b3;
+        }
+        
+        .print-controls .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .print-controls .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="print-controls no-print">
+        <button onclick="window.print()">🖨️ Print Badges</button>
+        <button class="btn-secondary" onclick="window.history.back()">← Back</button>
+    </div>
+
+    <div class="badges-container">
+        {% for eventPresenter in event.eventPresenters %}
+            {% if eventPresenter.isVisible %}
+                {% set presenter = eventPresenter.presenter %}
+                <div class="badge">
+                    <div class="badge-header">
+                        <div class="badge-type">Presenter</div>
+                        <h3 class="event-title">{{ event.title }}</h3>
+                        <p class="event-date">{{ event.startDate|date('F j, Y') }}{% if event.endDate and event.endDate != event.startDate %} - {{ event.endDate|date('F j, Y') }}{% endif %}</p>
+                    </div>
+                    
+                    <div class="presenter-info">
+			<!--
+                        {% if presenter.photo %}
+                            <img src="{{ asset('uploads/presenters/' ~ presenter.photo) }}" 
+                                 alt="{{ presenter.name }}" 
+                                 class="presenter-photo">
+                        {% else %}
+                            <div class="presenter-photo-placeholder">
+                                {{ presenter.name|slice(0,1)|upper }}
+                            </div>
+                        {% endif %}
+                        --> 
+                        <h2 class="presenter-name">{{ presenter.name }}</h2>
+                        
+                        {% if presenter.title %}
+                            <p class="presenter-title">{{ presenter.title }}</p>
+                        {% endif %}
+                        
+                        {% if presenter.company %}
+                            <p class="presenter-company">{{ presenter.company }}</p>
+                        {% endif %}
+                        
+                        {% if eventPresenter.presentationTitle %}
+                            <div class="presentation-title">
+                                {{ eventPresenter.presentationTitle }}
+                            </div>
+                        {% endif %}
+                       <!-- 
+                        {% if eventPresenter.timeRange %}
+                            <div class="presentation-time">
+                                {{ eventPresenter.timeRange }}
+                            </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="badge-footer">
+                    </div>
+		  -->
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="badge" style="grid-column: 1 / -1; text-align: center; justify-content: center;">
+                <div class="presenter-info">
+                    <h2 style="color: #6c757d;">No Presenters Available</h2>
+                    <p style="color: #6c757d;">There are no visible presenters assigned to this event.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Auto-focus for better printing experience
+        window.addEventListener('load', function() {
+            if (window.location.search.includes('autoprint=1')) {
+                setTimeout(function() {
+                    window.print();
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

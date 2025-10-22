@@ -1,0 +1,307 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Featured Events Analytics{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Featured Events Analytics</h1>
+    <div class="btn-group" role="group">
+        <a href="{{ path('admin_featured_events_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<!-- Overall Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ statistics.totalActive }}</h4>
+                        <p class="card-text">Active Features</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-star fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ statistics.totalViews|number_format }}</h4>
+                        <p class="card-text">Total Views</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-eye fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ statistics.totalClicks|number_format }}</h4>
+                        <p class="card-text">Total Clicks</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-mouse-pointer fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ statistics.averageCTR }}%</h4>
+                        <p class="card-text">Avg. CTR</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-percentage fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Performing Events -->
+{% if top_performing|length > 0 %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-trophy me-2"></i>Top Performing Featured Events
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Views</th>
+                        <th>Clicks</th>
+                        <th>CTR</th>
+                        <th>Performance Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for featured_event in top_performing %}
+                        <tr>
+                            <td>
+                                <span class="badge {% if loop.index == 1 %}bg-warning{% elseif loop.index == 2 %}bg-secondary{% elseif loop.index == 3 %}bg-danger{% else %}bg-light text-dark{% endif %}">
+                                    #{{ loop.index }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if featured_event.imageUrl %}
+                                        <img src="{{ featured_event.imageUrl }}" alt="{{ featured_event.title }}" class="me-2 rounded" style="width: 40px; height: 25px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="me-2 bg-light rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 25px;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ featured_event.title }}</strong>
+                                        {% if featured_event.relatedEvent %}
+                                            <br><small class="text-muted">Event: {{ featured_event.relatedEvent.title }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-secondary">{{ featured_event.displayType|title }}</span></td>
+                            <td>{{ featured_event.viewCount|number_format }}</td>
+                            <td>{{ featured_event.clickCount|number_format }}</td>
+                            <td>
+                                <span class="badge {% if featured_event.clickThroughRate > 5 %}bg-success{% elseif featured_event.clickThroughRate > 2 %}bg-warning{% else %}bg-danger{% endif %}">
+                                    {{ featured_event.clickThroughRate }}%
+                                </span>
+                            </td>
+                            <td>
+                                {% set score = (featured_event.viewCount * 0.1 + featured_event.clickCount * 2) %}
+                                <div class="d-flex align-items-center">
+                                    <div class="progress me-2" style="width: 100px; height: 20px;">
+                                        <div class="progress-bar {% if score > 1000 %}bg-success{% elseif score > 500 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                             role="progressbar" 
+                                             style="width: {{ (score / (top_performing|first.viewCount * 0.1 + top_performing|first.clickCount * 2)) * 100 }}%">
+                                        </div>
+                                    </div>
+                                    <small>{{ score|number_format }}</small>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Expiring Soon Alert -->
+{% if expiring_soon|length > 0 %}
+<div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>Featured Events Expiring Soon
+        </h5>
+    </div>
+    <div class="card-body">
+        <p>The following featured events will expire within the next 7 days:</p>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Expires</th>
+                        <th>Performance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for featured_event in expiring_soon %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if featured_event.imageUrl %}
+                                        <img src="{{ featured_event.imageUrl }}" alt="{{ featured_event.title }}" class="me-2 rounded" style="width: 40px; height: 25px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="me-2 bg-light rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 25px;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ featured_event.title }}</strong>
+                                        {% if featured_event.relatedEvent %}
+                                            <br><small class="text-muted">Event: {{ featured_event.relatedEvent.title }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-secondary">{{ featured_event.displayType|title }}</span></td>
+                            <td>
+                                <span class="text-danger">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ featured_event.endDate|date('M j, Y g:i A') }}
+                                </span>
+                                <br><small class="text-muted">
+                                    {% set days_left = featured_event.endDate.diff('now').days %}
+                                    {{ days_left }} day{{ days_left != 1 ? 's' : '' }} remaining
+                                </small>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small><i class="fas fa-eye text-muted me-1"></i>{{ featured_event.viewCount }}</small>
+                                        <small class="ms-2"><i class="fas fa-mouse-pointer text-muted me-1"></i>{{ featured_event.clickCount }}</small>
+                                    </div>
+                                    <span class="badge {% if featured_event.clickThroughRate > 5 %}bg-success{% elseif featured_event.clickThroughRate > 2 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ featured_event.clickThroughRate }}%
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ path('admin_featured_events_edit', {id: featured_event.id}) }}" class="btn btn-outline-primary" title="Extend/Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ path('admin_featured_events_show', {id: featured_event.id}) }}" class="btn btn-outline-info" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Additional Analytics Cards -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Display Type Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if statistics.displayTypeStats %}
+                    {% for type, count in statistics.displayTypeStats %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="badge bg-secondary me-2">{{ type|title }}</span>
+                            </div>
+                            <div>
+                                <span class="fw-bold">{{ count }}</span>
+                                <small class="text-muted">events</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No featured events created yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Quick Stats
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <h4 class="text-primary mb-1">{{ statistics.totalFeatured }}</h4>
+                            <small class="text-muted">Total Created</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <h4 class="text-success mb-1">{{ statistics.activeCount }}</h4>
+                            <small class="text-muted">Currently Active</small>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <h4 class="text-info mb-1">{{ statistics.scheduledCount }}</h4>
+                            <small class="text-muted">Scheduled</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <h4 class="text-warning mb-1">{{ expiring_soon|length }}</h4>
+                            <small class="text-muted">Expiring Soon</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

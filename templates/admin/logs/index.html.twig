@@ -1,0 +1,161 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Application Logs{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('admin_dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Application Logs</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-file-text me-2"></i>
+                            <h5 class="card-title mb-0">Application Log Files</h5>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-light" onclick="location.reload()">
+                                <i class="bi bi-arrow-clockwise"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if log_files is empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-file-text display-1 text-muted"></i>
+                            <h4 class="text-muted mt-3">No Log Files Found</h4>
+                            <p class="text-muted">Log files will appear here as the application generates them.</p>
+                        </div>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Log File</th>
+                                        <th>Size</th>
+                                        <th>Last Modified</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for file in log_files %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if file.name starts with 'security' or file.name starts with 'audit' %}
+                                                        <i class="bi bi-shield-check text-warning me-2"></i>
+                                                    {% elseif file.name starts with 'error' or 'error' in file.name %}
+                                                        <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                                                    {% else %}
+                                                        <i class="bi bi-file-text text-info me-2"></i>
+                                                    {% endif %}
+                                                    <strong>{{ file.name }}</strong>
+                                                </div>
+                                                {% if file.name starts with 'security' %}
+                                                    <small class="text-muted">Security events and authentication</small>
+                                                {% elseif file.name starts with 'audit' %}
+                                                    <small class="text-muted">Admin actions and configuration changes</small>
+                                                {% elseif file.name starts with 'event' %}
+                                                    <small class="text-muted">Event management operations</small>
+                                                {% elseif file.name starts with 'user' %}
+                                                    <small class="text-muted">User management operations</small>
+                                                {% elseif 'error' in file.name %}
+                                                    <small class="text-muted">Application errors and exceptions</small>
+                                                {% else %}
+                                                    <small class="text-muted">General application logs</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    {{ file.size|format_bytes }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <small>{{ file.modified|date('Y-m-d H:i:s') }}</small>
+                                            </td>
+                                            <td>
+                                                {% if file.readable %}
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i> Readable
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle"></i> Not Readable
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    {% if file.readable %}
+                                                        <a href="{{ path('admin_logs_view', {'logFile': file.name}) }}" 
+                                                           class="btn btn-outline-primary" title="View Log">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        <a href="{{ path('admin_logs_download', {'logFile': file.name}) }}" 
+                                                           class="btn btn-outline-secondary" title="Download">
+                                                            <i class="bi bi-download"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="bi bi-info-circle text-info"></i> Log File Types</h6>
+                                    <ul class="list-unstyled small">
+                                        <li><i class="bi bi-shield-check text-warning"></i> <strong>Security logs</strong> - Login attempts, authentication events</li>
+                                        <li><i class="bi bi-clipboard-check text-success"></i> <strong>Audit logs</strong> - Admin actions, configuration changes</li>
+                                        <li><i class="bi bi-calendar-event text-primary"></i> <strong>Event logs</strong> - Event management operations</li>
+                                        <li><i class="bi bi-exclamation-triangle text-danger"></i> <strong>Error logs</strong> - Application errors and exceptions</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="bi bi-gear text-secondary"></i> Log Management</h6>
+                                    <p class="small text-muted">
+                                        Logs are automatically rotated daily. Security and audit logs are kept for 90 days, 
+                                        while other logs are kept for 30 days. Large log files are compressed to save space.
+                                    </p>
+                                    <p class="small text-muted">
+                                        <strong>Log directory:</strong> <code>{{ log_dir }}</code>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Auto-refresh every 30 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
+{% endblock %}

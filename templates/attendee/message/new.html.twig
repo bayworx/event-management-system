@@ -1,0 +1,178 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Message{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3><i class="bi bi-envelope-plus"></i> Send New Message</h3>
+                        <a href="{{ path('attendee_message_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Messages
+                        </a>
+                    </div>
+                    <p class="mb-0 text-muted">Send a message to an administrator for {{ event.title }}</p>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        <div class="mb-4">
+                            {{ form_row(form.subject) }}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form_row(form.recipient) }}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form_row(form.priority) }}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form_row(form.content) }}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('attendee_message_index') }}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                            {{ form_row(form.send, { 'attr': {'class': 'btn btn-primary'} }) }}
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="bi bi-lightbulb"></i> Tips for Effective Messaging</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>Be specific:</strong> Include relevant details and context
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>Use clear subjects:</strong> Make it easy to understand the topic
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>Select correct priority:</strong> Help administrators prioritize responses
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>Be polite:</strong> Professional tone gets better responses
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>One issue per message:</strong> Keep messages focused
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check2 text-success"></i>
+                                    <strong>Check for replies:</strong> Administrators may respond quickly
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Event Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="bi bi-calendar-event"></i> Event Details</h6>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-4">Event:</dt>
+                        <dd class="col-8">{{ event.title }}</dd>
+
+                        <dt class="col-4">Date:</dt>
+                        <dd class="col-8">
+                            {{ event.startDate|date('M j, Y') }}
+                            {% if event.endDate and event.endDate.format('Y-m-d') != event.startDate.format('Y-m-d') %}
+                                - {{ event.endDate|date('M j, Y') }}
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-4">Time:</dt>
+                        <dd class="col-8">{{ event.startDate|date('g:i A') }}</dd>
+
+                        {% if event.location %}
+                            <dt class="col-4">Location:</dt>
+                            <dd class="col-8">{{ event.location }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Priority Guide -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="bi bi-flag"></i> Priority Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-danger">Urgent</span>
+                        <small class="d-block mt-1">
+                            Critical issues affecting event participation (login problems, payment issues)
+                        </small>
+                    </div>
+                    <div class="mb-3">
+                        <span class="badge bg-warning">High</span>
+                        <small class="d-block mt-1">
+                            Important questions that need quick answers (schedule changes, requirements)
+                        </small>
+                    </div>
+                    <div class="mb-3">
+                        <span class="badge bg-primary">Normal</span>
+                        <small class="d-block mt-1">
+                            General questions and standard requests (information, clarifications)
+                        </small>
+                    </div>
+                    <div class="mb-0">
+                        <span class="badge bg-secondary">Low</span>
+                        <small class="d-block mt-1">
+                            Non-urgent suggestions or optional information requests
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="bi bi-lightning"></i> Quick Links</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('attendee_message_contact_admin') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-chat-dots"></i> Contact All Admins
+                        </a>
+                        <a href="{{ path('event_show', {slug: event.slug}) }}" class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-info-circle"></i> Event Details
+                        </a>
+                        {% if event.hasAgenda %}
+                            <a href="{{ path('event_agenda', {slug: event.slug}) }}" class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-calendar-check"></i> Event Agenda
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
