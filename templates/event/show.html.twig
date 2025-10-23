@@ -24,7 +24,7 @@
     <div class="row mb-4">
         <div class="col-12">
             {% if event.bannerImage %}
-                <div class="position-relative mb-4">
+                <div class="position-relative mb-4" style="margin-bottom: .5rem !important">
                     <img src="{{ asset('uploads/events/' ~ event.bannerImage) }}" class="img-fluid w-100 rounded" alt="{{ event.title }}" style="height: 300px; object-fit: cover;">
                     <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 rounded d-flex align-items-end">
                         <div class="container">
@@ -51,7 +51,7 @@
 
     <div class="row">
         <!-- Main Content -->
-        <div class="col-lg-8">
+        <div class="col-lg-9">
             <!-- Event Details -->
             <div class="card mb-4">
                 <div class="card-body">
@@ -327,7 +327,7 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <!-- Registration Card -->
             {% if not app.user or not user_is_attendee %}
                 <div class="card mb-4">
@@ -390,7 +390,7 @@
                 </div>
             {% endif %}
 
-            <!-- Event Stats -->
+            <!-- Event Stats 
             <div class="card">
                 <div class="card-body">
                     <h6 class="card-title"><i class="bi bi-bar-chart"></i> Event Statistics</h6>
@@ -424,7 +424,7 @@
                     {% endif %}
                 </div>
             </div>
-            
+            --> 
             <!-- Add to Calendar -->
             <div class="card mt-4">
                 <div class="card-body text-center">
