@@ -11,6 +11,7 @@ use App\Repository\EventRepository;
 use App\Repository\AdministratorRepository;
 use App\Repository\EventPresenterRepository;
 use App\Repository\EventFileRepository;
+use App\Service\RecurringEventService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +30,8 @@ class AdminEventController extends AbstractController
         private EventRepository $eventRepository,
         private EventPresenterRepository $eventPresenterRepository,
         private EventFileRepository $eventFileRepository,
-        private SluggerInterface $slugger
+        private SluggerInterface $slugger,
+        private RecurringEventService $recurringEventService
     ) {
     }
 
@@ -146,12 +148,29 @@ class AdminEventController extends AbstractController
                 $this->entityManager->persist($event);
                 $this->entityManager->flush();
 
+                // Generate recurring instances if needed
+                if ($event->isRecurring()) {
+                    try {
+                        $instances = $this->recurringEventService->generateRecurringInstances($event);
+                        foreach ($instances as $instance) {
+                            $this->entityManager->persist($instance);
+                        }
+                        $this->entityManager->flush();
+                        
+                        $count = count($instances);
+                        $this->addFlash('success', "Event created successfully with {$count} recurring instances.");
+                    } catch (\Exception $e) {
+                        $this->addFlash('warning', 'Event created but recurring instances failed: ' . $e->getMessage());
+                    }
+                } else {
+                    $this->addFlash('success', 'Event created successfully.');
+                }
+
                 // Clean any buffered output before redirect
                 if (ob_get_level()) {
                     ob_end_clean();
                 }
 
-                $this->addFlash('success', 'Event created successfully.');
                 return $this->redirectToRoute('admin_event_show', ['id' => $event->getId()]);
             } catch (\Exception $e) {
                 // Clean any buffered output on error
@@ -233,9 +252,22 @@ class AdminEventController extends AbstractController
             $event->autoAssignPresenterSortOrders();
             
             $event->setUpdatedAt(new \DateTime());
+            
+            // Handle recurring event changes
+            if ($event->isRecurring() && !$event->isRecurringInstance()) {
+                try {
+                    // Regenerate recurring instances
+                    $instances = $this->recurringEventService->regenerateRecurringInstances($event);
+                    $count = count($instances);
+                    $this->addFlash('success', "Event updated successfully with {$count} recurring instances regenerated.");
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'Event updated but recurring instances failed: ' . $e->getMessage());
+                }
+            } else {
+                $this->addFlash('success', 'Event updated successfully.');
+            }
+            
             $this->entityManager->flush();
-
-            $this->addFlash('success', 'Event updated successfully.');
             return $this->redirectToRoute('admin_event_show', ['id' => $event->getId()]);
         }
 

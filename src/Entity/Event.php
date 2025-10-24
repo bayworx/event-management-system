@@ -73,6 +73,28 @@ class Event
     #[ORM\OrderBy(['startTime' => 'ASC', 'sortOrder' => 'ASC'])]
     private Collection $agendaItems;
 
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $isRecurring = false;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $recurrencePattern = null; // daily, weekly, monthly, yearly
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $recurrenceInterval = null; // e.g., every 1 week, every 2 months
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $recurrenceEndDate = null;
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $recurrenceCount = null; // Alternative to end date: create N occurrences
+
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'childEvents')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?self $parentEvent = null;
+
+    #[ORM\OneToMany(mappedBy: 'parentEvent', targetEntity: self::class)]
+    private Collection $childEvents;
+
     public function __construct()
     {
         $this->attendees = new ArrayCollection();
@@ -80,6 +102,7 @@ class Event
         $this->administrators = new ArrayCollection();
         $this->eventPresenters = new ArrayCollection();
         $this->agendaItems = new ArrayCollection();
+        $this->childEvents = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -437,12 +460,126 @@ class Event
         }
     }
 
+    /**
+     * Recurring event methods
+     */
+    public function isRecurring(): bool
+    {
+        return $this->isRecurring;
+    }
+
+    public function setIsRecurring(bool $isRecurring): static
+    {
+        $this->isRecurring = $isRecurring;
+        return $this;
+    }
+
+    public function getRecurrencePattern(): ?string
+    {
+        return $this->recurrencePattern;
+    }
+
+    public function setRecurrencePattern(?string $recurrencePattern): static
+    {
+        $this->recurrencePattern = $recurrencePattern;
+        return $this;
+    }
+
+    public function getRecurrenceInterval(): ?int
+    {
+        return $this->recurrenceInterval;
+    }
+
+    public function setRecurrenceInterval(?int $recurrenceInterval): static
+    {
+        $this->recurrenceInterval = $recurrenceInterval;
+        return $this;
+    }
+
+    public function getRecurrenceEndDate(): ?\DateTimeInterface
+    {
+        return $this->recurrenceEndDate;
+    }
+
+    public function setRecurrenceEndDate(?\DateTimeInterface $recurrenceEndDate): static
+    {
+        $this->recurrenceEndDate = $recurrenceEndDate;
+        return $this;
+    }
+
+    public function getRecurrenceCount(): ?int
+    {
+        return $this->recurrenceCount;
+    }
+
+    public function setRecurrenceCount(?int $recurrenceCount): static
+    {
+        $this->recurrenceCount = $recurrenceCount;
+        return $this;
+    }
+
+    public function getParentEvent(): ?self
+    {
+        return $this->parentEvent;
+    }
+
+    public function setParentEvent(?self $parentEvent): static
+    {
+        $this->parentEvent = $parentEvent;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Event>
+     */
+    public function getChildEvents(): Collection
+    {
+        return $this->childEvents;
+    }
+
+    public function addChildEvent(self $childEvent): static
+    {
+        if (!$this->childEvents->contains($childEvent)) {
+            $this->childEvents->add($childEvent);
+            $childEvent->setParentEvent($this);
+        }
+        return $this;
+    }
+
+    public function removeChildEvent(self $childEvent): static
+    {
+        if ($this->childEvents->removeElement($childEvent)) {
+            if ($childEvent->getParentEvent() === $this) {
+                $childEvent->setParentEvent(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Check if this is a recurring series parent
+     */
+    public function isRecurringSeries(): bool
+    {
+        return $this->isRecurring && $this->childEvents->count() > 0;
+    }
+
+    /**
+     * Check if this is an instance of a recurring series
+     */
+    public function isRecurringInstance(): bool
+    {
+        return $this->parentEvent !== null;
+    }
+
     public function __sleep(): array
     {
         // Exclude bannerFile from serialization to prevent UploadedFile serialization errors
         return ['id', 'title', 'description', 'startDate', 'endDate', 'location', 'maxAttendees', 
                 'isActive', 'slug', 'bannerImage', 'createdAt', 'updatedAt', 'attendees', 
-                'administrators', 'files', 'eventPresenters', 'agendaItems'];
+                'administrators', 'files', 'eventPresenters', 'agendaItems', 'isRecurring', 
+                'recurrencePattern', 'recurrenceInterval', 'recurrenceEndDate', 'recurrenceCount', 
+                'parentEvent', 'childEvents'];
     }
     
     public function __wakeup(): void

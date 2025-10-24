@@ -154,7 +154,64 @@
                                 <i class="bi bi-box-arrow-up-right"></i>
                             </a>
                         </dd>
+                        
+                        {% if event.isRecurring or event.parentEvent %}
+                            <dt class="col-sm-3">Recurring Event</dt>
+                            <dd class="col-sm-9">
+                                {% if event.parentEvent %}
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-arrow-repeat"></i> Instance of Recurring Series
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">
+                                        Parent: <a href="{{ path('admin_event_show', {id: event.parentEvent.id}) }}">{{ event.parentEvent.title }}</a>
+                                    </small>
+                                {% elseif event.isRecurring %}
+                                    <span class="badge bg-primary">
+                                        <i class="bi bi-arrow-repeat"></i> Recurring Series ({{ event.childEvents|length }} instances)
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">
+                                        Pattern: {{ event.recurrencePattern|capitalize }} (every {{ event.recurrenceInterval }})
+                                        {% if event.recurrenceEndDate %}
+                                            | Until: {{ event.recurrenceEndDate|date('M j, Y') }}
+                                        {% elseif event.recurrenceCount %}
+                                            | Count: {{ event.recurrenceCount }} occurrences
+                                        {% endif %}
+                                    </small>
+                                {% endif %}
+                            </dd>
+                        {% endif %}
                     </dl>
+                    
+                    {% if event.isRecurring and event.childEvents|length > 0 %}
+                        <div class="mt-4">
+                            <h6 class="text-muted mb-3">Recurring Instances ({{ event.childEvents|length }})</h6>
+                            <div class="list-group">
+                                {% for childEvent in event.childEvents|slice(0, 10) %}
+                                    <a href="{{ path('admin_event_show', {id: childEvent.id}) }}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ childEvent.title }}</strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar"></i> {{ childEvent.startDate|date('M j, Y g:i A') }}
+                                                </small>
+                                            </div>
+                                            <span class="badge {{ childEvent.isActive ? 'bg-success' : 'bg-secondary' }}">
+                                                {{ childEvent.isActive ? 'Active' : 'Inactive' }}
+                                            </span>
+                                        </div>
+                                    </a>
+                                {% endfor %}
+                                {% if event.childEvents|length > 10 %}
+                                    <div class="list-group-item text-center text-muted">
+                                        <small>... and {{ event.childEvents|length - 10 }} more instances</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 

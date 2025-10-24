@@ -9,6 +9,7 @@ use App\Form\EventFileType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -95,6 +96,60 @@ class AdminEventType extends AbstractType
                 'attr' => ['class' => 'form-check-input'],
                 'label_attr' => ['class' => 'form-check-label'],
                 'help' => 'Only active events are visible to attendees'
+            ])
+            ->add('isRecurring', CheckboxType::class, [
+                'label' => 'Recurring Event',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input',
+                    'data-toggle' => 'recurring-fields'
+                ],
+                'label_attr' => ['class' => 'form-check-label'],
+                'help' => 'Enable to create multiple instances of this event'
+            ])
+            ->add('recurrencePattern', ChoiceType::class, [
+                'label' => 'Repeat Pattern',
+                'required' => false,
+                'choices' => [
+                    'Daily' => 'daily',
+                    'Weekly' => 'weekly',
+                    'Monthly' => 'monthly',
+                    'Yearly' => 'yearly',
+                ],
+                'attr' => [
+                    'class' => 'form-select recurring-field'
+                ],
+                'help' => 'How often should this event repeat?'
+            ])
+            ->add('recurrenceInterval', IntegerType::class, [
+                'label' => 'Repeat Every',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control recurring-field',
+                    'min' => 1,
+                    'placeholder' => '1'
+                ],
+                'help' => 'E.g., every 1 week, every 2 months',
+                'data' => 1
+            ])
+            ->add('recurrenceEndDate', DateTimeType::class, [
+                'label' => 'Repeat Until',
+                'required' => false,
+                'widget' => 'single_text',
+                'attr' => [
+                    'class' => 'form-control recurring-field'
+                ],
+                'help' => 'Leave blank to use occurrence count instead'
+            ])
+            ->add('recurrenceCount', IntegerType::class, [
+                'label' => 'Number of Occurrences',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control recurring-field',
+                    'min' => 1,
+                    'placeholder' => 'E.g., 10'
+                ],
+                'help' => 'How many times should this event occur? (used if no end date)'
             ])
             ->add('bannerFile', VichFileType::class, [
                 'label' => 'Banner Image',

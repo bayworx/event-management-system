@@ -172,6 +172,91 @@
                                                 {{ form_errors(form.isActive) }}
                                             </div>
                                         </div>
+                                        
+                                        {% if not event.parentEvent %}
+                                            <div class="form-check mb-3">
+                                                {{ form_widget(form.isRecurring) }}
+                                                {{ form_label(form.isRecurring) }}
+                                                {% if form.isRecurring.vars.help %}
+                                                    <div class="form-text">{{ form.isRecurring.vars.help }}</div>
+                                                {% endif %}
+                                                <div class="invalid-feedback d-block">
+                                                    {{ form_errors(form.isRecurring) }}
+                                                </div>
+                                            </div>
+                                            
+                                            <div id="recurring-fields" class="recurring-fields-container" style="display: {{ event.isRecurring ? 'block' : 'none' }};">
+                                                <hr class="my-3">
+                                                <h6 class="card-subtitle mb-3 text-muted">
+                                                    <i class="bi bi-arrow-repeat"></i> Recurring Event Settings
+                                                </h6>
+                                                
+                                                {% if event.childEvents|length > 0 %}
+                                                    <div class="alert alert-warning mb-3">
+                                                        <i class="bi bi-exclamation-triangle"></i>
+                                                        <strong>Warning:</strong> This event has {{ event.childEvents|length }} recurring instances. Changing recurrence settings will regenerate all instances.
+                                                    </div>
+                                                {% endif %}
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        {{ form_label(form.recurrencePattern) }}
+                                                        {{ form_widget(form.recurrencePattern) }}
+                                                        {% if form.recurrencePattern.vars.help %}
+                                                            <div class="form-text">{{ form.recurrencePattern.vars.help }}</div>
+                                                        {% endif %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ form_errors(form.recurrencePattern) }}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-md-6 mb-3">
+                                                        {{ form_label(form.recurrenceInterval) }}
+                                                        {{ form_widget(form.recurrenceInterval) }}
+                                                        {% if form.recurrenceInterval.vars.help %}
+                                                            <div class="form-text">{{ form.recurrenceInterval.vars.help }}</div>
+                                                        {% endif %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ form_errors(form.recurrenceInterval) }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row">
+                                                    <div class="col-md-6 mb-3">
+                                                        {{ form_label(form.recurrenceEndDate) }}
+                                                        {{ form_widget(form.recurrenceEndDate) }}
+                                                        {% if form.recurrenceEndDate.vars.help %}
+                                                            <div class="form-text">{{ form.recurrenceEndDate.vars.help }}</div>
+                                                        {% endif %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ form_errors(form.recurrenceEndDate) }}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-md-6 mb-3">
+                                                        {{ form_label(form.recurrenceCount) }}
+                                                        {{ form_widget(form.recurrenceCount) }}
+                                                        {% if form.recurrenceCount.vars.help %}
+                                                            <div class="form-text">{{ form.recurrenceCount.vars.help }}</div>
+                                                        {% endif %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ form_errors(form.recurrenceCount) }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="alert alert-info mb-0">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    <strong>Note:</strong> Specify either an end date or number of occurrences (not both).
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="alert alert-info mb-0">
+                                                <i class="bi bi-info-circle"></i>
+                                                This is an instance of a recurring event series. Edit the <a href="{{ path('admin_event_edit', {id: event.parentEvent.id}) }}">parent event</a> to modify recurrence settings.
+                                            </div>
+                                        {% endif %}
 
                                         {% if form.administrators is defined %}
                                             <div class="mb-3">
@@ -225,6 +310,17 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle recurring event toggle
+    const isRecurringCheckbox = document.querySelector('#admin_event_isRecurring');
+    const recurringFields = document.querySelector('#recurring-fields');
+    
+    if (isRecurringCheckbox && recurringFields) {
+        // Toggle on checkbox change
+        isRecurringCheckbox.addEventListener('change', function() {
+            recurringFields.style.display = this.checked ? 'block' : 'none';
+        });
+    }
+    
     // Handle presenter collection
     const presenterCollection = document.querySelector('#presenter-collection');
     const addPresenterBtn = document.querySelector('.add-presenter');
