@@ -127,6 +127,11 @@
 .featured-events-carousel .carousel-indicators {
     bottom: 20px;
     margin-bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-left: 0;
+    margin-right: 0;
+    justify-content: center;
 }
 
 .featured-events-carousel .carousel-indicators button {

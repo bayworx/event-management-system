@@ -32,7 +32,7 @@ class EventFile
     #[ORM\Column(length: 255)]
     private ?string $originalName = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 255)]
     private ?string $mimeType = null;
 
     #[ORM\Column(type: Types::BIGINT)]

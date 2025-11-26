@@ -23,7 +23,7 @@
                                 <option value="">All Events</option>
                                 {% for event in managed_events %}
                                     <option value="{{ event.id }}" {% if current_event and current_event.id == event.id %}selected{% endif %}>
-                                        {{ event.title }}
+                                        {{ event.title }} ({{ event.startDate|date('M j, Y') }})
                                     </option>
                                 {% endfor %}
                             </select>

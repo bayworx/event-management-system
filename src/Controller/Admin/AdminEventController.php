@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use App\Service\WifiQrCodeService;
 
 #[Route('/admin/events')]
 #[IsGranted('ROLE_ADMIN')]
@@ -31,7 +32,8 @@ class AdminEventController extends AbstractController
         private EventPresenterRepository $eventPresenterRepository,
         private EventFileRepository $eventFileRepository,
         private SluggerInterface $slugger,
-        private RecurringEventService $recurringEventService
+        private RecurringEventService $recurringEventService,
+        private WifiQrCodeService $wifiQrCodeService
     ) {
     }
 
@@ -57,7 +59,7 @@ class AdminEventController extends AbstractController
                 ->setParameter('admin', $currentUser);
         }
 
-        $queryBuilder->orderBy('e.startDate', 'DESC');
+        $queryBuilder->orderBy('e.startDate', 'ASC');
 
         // Apply filters
         if ($filterForm->isSubmitted() && $filterForm->isValid()) {
@@ -209,8 +211,16 @@ class AdminEventController extends AbstractController
         
         $this->checkEventAccess($event);
 
+        // Generate WiFi QR code if event has WiFi information
+        $wifiQrCode = null;
+        if ($event->hasWifiInformation()) {
+            $wifiQrCode = $this->wifiQrCodeService->generateWifiQrCodeDataUri($event);
+        }
+
         return $this->render('admin/event/show.html.twig', [
             'event' => $event,
+            'wifi_qr_code' => $wifiQrCode,
+            'wifi_info' => $this->wifiQrCodeService->getWifiInformation($event),
         ]);
     }
 
@@ -224,6 +234,9 @@ class AdminEventController extends AbstractController
         
         $this->checkEventAccess($event);
         
+        // Store the original WiFi password before form handling
+        $originalWifiPassword = $event->getWifiPassword();
+        
         $currentUser = $this->getUser();
         $form = $this->createForm(AdminEventType::class, $event, [
             'current_user' => $currentUser
@@ -231,6 +244,10 @@ class AdminEventController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Preserve original WiFi password if the field was left empty
+            if (empty($event->getWifiPassword()) && !empty($originalWifiPassword)) {
+                $event->setWifiPassword($originalWifiPassword);
+            }
             // Update slug if title changed
             $newSlug = $this->slugger->slug($event->getTitle())->lower();
             if ($newSlug != $event->getSlug()) {

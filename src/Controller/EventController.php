@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\Service\WifiQrCodeService;
 use Vich\UploaderBundle\Handler\DownloadHandler;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -155,7 +156,8 @@ class EventController extends AbstractController
         EventRepository $eventRepository,
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
-        MailerInterface $mailer
+        MailerInterface $mailer,
+        WifiQrCodeService $wifiQrCodeService
     ): Response {
         $event = $eventRepository->findOneBySlug($slug);
 
@@ -201,7 +203,7 @@ class EventController extends AbstractController
                         $entityManager->flush();
                     }
 
-                    $this->sendVerificationEmail($existingAttendee, $mailer);
+                    $this->sendVerificationEmail($existingAttendee, $mailer, $wifiQrCodeService);
                     return $this->redirectToRoute('event_show', ['slug' => $slug]);
                 }
 
@@ -209,7 +211,7 @@ class EventController extends AbstractController
                 $entityManager->flush();
 
                 // Send verification email
-                $this->sendVerificationEmail($attendee, $mailer);
+                $this->sendVerificationEmail($attendee, $mailer, $wifiQrCodeService);
 
                 $this->addFlash('success', 'Registration successful! Please check your email for a verification link to access event materials.');
                 return $this->redirectToRoute('event_show', ['slug' => $slug]);
@@ -269,21 +271,31 @@ class EventController extends AbstractController
         return $downloadHandler->downloadObject($file, 'file', null, $file->getOriginalName());
     }
 
-    private function sendVerificationEmail(Attendee $attendee, MailerInterface $mailer): void
+    private function sendVerificationEmail(Attendee $attendee, MailerInterface $mailer, WifiQrCodeService $wifiQrCodeService): void
     {
         $verifyUrl = $this->generateUrl('attendee_email_verify', [
             'slug' => $attendee->getEvent()->getSlug(),
             'token' => $attendee->getEmailVerificationToken()
         ], true);
 
+        $event = $attendee->getEvent();
+        $wifiQrCode = null;
+        
+        // Generate WiFi QR code if event has WiFi information
+        if ($event->hasWifiInformation()) {
+            $wifiQrCode = $wifiQrCodeService->generateWifiQrCodeDataUri($event);
+        }
+
         $email = (new Email())
             ->from('noreply@example.com')
             ->to($attendee->getEmail())
-            ->subject('Verify your registration for ' . $attendee->getEvent()->getTitle())
+            ->subject('Verify your registration for ' . $event->getTitle())
             ->html($this->renderView('emails/verification.html.twig', [
                 'attendee' => $attendee,
-                'event' => $attendee->getEvent(),
-                'verify_url' => $verifyUrl
+                'event' => $event,
+                'verify_url' => $verifyUrl,
+                'wifi_qr_code' => $wifiQrCode,
+                'wifi_info' => $wifiQrCodeService->getWifiInformation($event)
             ]));
 
         $mailer->send($email);

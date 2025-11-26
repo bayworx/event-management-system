@@ -95,6 +95,15 @@ class Event
     #[ORM\OneToMany(mappedBy: 'parentEvent', targetEntity: self::class)]
     private Collection $childEvents;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $wifiSsid = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $wifiPassword = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $wifiSecurityType = 'WPA'; // WPA, WPA2, WEP, or nopass
+
     public function __construct()
     {
         $this->attendees = new ArrayCollection();
@@ -572,6 +581,44 @@ class Event
         return $this->parentEvent !== null;
     }
 
+    public function getWifiSsid(): ?string
+    {
+        return $this->wifiSsid;
+    }
+
+    public function setWifiSsid(?string $wifiSsid): static
+    {
+        $this->wifiSsid = $wifiSsid;
+        return $this;
+    }
+
+    public function getWifiPassword(): ?string
+    {
+        return $this->wifiPassword;
+    }
+
+    public function setWifiPassword(?string $wifiPassword): static
+    {
+        $this->wifiPassword = $wifiPassword;
+        return $this;
+    }
+
+    public function getWifiSecurityType(): ?string
+    {
+        return $this->wifiSecurityType;
+    }
+
+    public function setWifiSecurityType(?string $wifiSecurityType): static
+    {
+        $this->wifiSecurityType = $wifiSecurityType;
+        return $this;
+    }
+
+    public function hasWifiInformation(): bool
+    {
+        return !empty($this->wifiSsid) && !empty($this->wifiPassword);
+    }
+
     public function __sleep(): array
     {
         // Exclude bannerFile from serialization to prevent UploadedFile serialization errors
@@ -579,7 +626,7 @@ class Event
                 'isActive', 'slug', 'bannerImage', 'createdAt', 'updatedAt', 'attendees', 
                 'administrators', 'files', 'eventPresenters', 'agendaItems', 'isRecurring', 
                 'recurrencePattern', 'recurrenceInterval', 'recurrenceEndDate', 'recurrenceCount', 
-                'parentEvent', 'childEvents'];
+                'parentEvent', 'childEvents', 'wifiSsid', 'wifiPassword', 'wifiSecurityType'];
     }
     
     public function __wakeup(): void

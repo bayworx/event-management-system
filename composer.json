@@ -14,6 +14,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.5",
         "dompdf/dompdf": "*",
+        "endroid/qr-code": "^6.0",
         "friendsofsymfony/ckeditor-bundle": "*",
         "knplabs/knp-paginator-bundle": "*",
         "league/csv": "^9.26",

@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -159,6 +160,39 @@ class AdminEventType extends AbstractType
                 'download_uri' => false,
                 'attr' => ['class' => 'form-control'],
                 'help' => 'Upload an image for the event banner (JPG, PNG, GIF - max 5MB)'
+            ])
+            ->add('wifiSsid', TextType::class, [
+                'label' => 'WiFi Network Name (SSID)',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter WiFi network name'
+                ],
+                'help' => 'Attendees will receive a QR code to connect to this WiFi network'
+            ])
+            ->add('wifiPassword', PasswordType::class, [
+                'label' => 'WiFi Password',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Enter WiFi password',
+                    'autocomplete' => 'new-password'
+                ],
+                'help' => 'Leave blank if network is open/unsecured'
+            ])
+            ->add('wifiSecurityType', ChoiceType::class, [
+                'label' => 'WiFi Security Type',
+                'required' => false,
+                'choices' => [
+                    'WPA/WPA2 (Most common)' => 'WPA',
+                    'WEP (Legacy)' => 'WEP',
+                    'Open/No Password' => 'nopass',
+                ],
+                'attr' => [
+                    'class' => 'form-select'
+                ],
+                'data' => 'WPA',
+                'help' => 'Select the security protocol used by your WiFi network'
             ])
             ->add('eventPresenters', CollectionType::class, [
                 'entry_type' => EventPresenterType::class,
