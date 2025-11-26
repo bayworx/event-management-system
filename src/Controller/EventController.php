@@ -18,6 +18,7 @@ use App\Service\WifiQrCodeService;
 use Vich\UploaderBundle\Handler\DownloadHandler;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 #[Route('/event')]
 class EventController extends AbstractController
@@ -157,7 +158,8 @@ class EventController extends AbstractController
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         MailerInterface $mailer,
-        WifiQrCodeService $wifiQrCodeService
+        WifiQrCodeService $wifiQrCodeService,
+        ParameterBagInterface $params
     ): Response {
         $event = $eventRepository->findOneBySlug($slug);
 
@@ -194,8 +196,6 @@ class EventController extends AbstractController
                     ->findOneBy(['email' => $attendee->getEmail(), 'event' => $event]);
 
                 if ($existingAttendee) {
-                    $this->addFlash('warning', 'This email is already registered for this event. A verification link will be sent to your email.');
-                    
                     // Resend verification email
                     if (!$existingAttendee->getEmailVerificationToken()) {
                         $existingAttendee->generateEmailVerificationToken();
@@ -203,17 +203,38 @@ class EventController extends AbstractController
                         $entityManager->flush();
                     }
 
-                    $this->sendVerificationEmail($existingAttendee, $mailer, $wifiQrCodeService);
+                    $isDevelopment = $params->get('kernel.environment') === 'dev';
+                    if ($isDevelopment) {
+                        $verifyUrl = $this->generateUrl('attendee_email_verify', [
+                            'slug' => $existingAttendee->getEvent()->getSlug(),
+                            'token' => $existingAttendee->getEmailVerificationToken()
+                        ], true);
+                        $this->addFlash('warning', 'This email is already registered for this event.');
+                        $this->addFlash('info', sprintf('Development mode: Click here to verify: <a href="%s">%s</a>', $verifyUrl, $verifyUrl));
+                    } else {
+                        $this->sendVerificationEmail($existingAttendee, $mailer, $wifiQrCodeService);
+                        $this->addFlash('warning', 'This email is already registered for this event. A verification link will be sent to your email.');
+                    }
                     return $this->redirectToRoute('event_show', ['slug' => $slug]);
                 }
 
                 $entityManager->persist($attendee);
                 $entityManager->flush();
 
-                // Send verification email
-                $this->sendVerificationEmail($attendee, $mailer, $wifiQrCodeService);
-
-                $this->addFlash('success', 'Registration successful! Please check your email for a verification link to access event materials.');
+                $isDevelopment = $params->get('kernel.environment') === 'dev';
+                if ($isDevelopment) {
+                    // In development mode, display the verification link
+                    $verifyUrl = $this->generateUrl('attendee_email_verify', [
+                        'slug' => $attendee->getEvent()->getSlug(),
+                        'token' => $attendee->getEmailVerificationToken()
+                    ], true);
+                    $this->addFlash('success', 'Registration successful!');
+                    $this->addFlash('info', sprintf('Development mode: Click here to verify: <a href="%s">%s</a>', $verifyUrl, $verifyUrl));
+                } else {
+                    // In production mode, send verification email
+                    $this->sendVerificationEmail($attendee, $mailer, $wifiQrCodeService);
+                    $this->addFlash('success', 'Registration successful! Please check your email for a verification link to access event materials.');
+                }
                 return $this->redirectToRoute('event_show', ['slug' => $slug]);
             } else {
                 foreach ($errors as $error) {

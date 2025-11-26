@@ -5,14 +5,13 @@ namespace App\Entity;
 use App\Repository\AttendeeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AttendeeRepository::class)]
 #[ORM\Table(name: 'attendees')]
-#[UniqueEntity(fields: ['email'], message: 'This email is already registered')]
+#[ORM\UniqueConstraint(name: 'unique_email_per_event', columns: ['email', 'event_id'])]
 class Attendee implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -24,7 +23,7 @@ class Attendee implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Email]
     private ?string $email = null;
