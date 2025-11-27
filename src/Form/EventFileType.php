@@ -41,13 +41,13 @@ class EventFileType extends AbstractType
             ])
             ->add('file', VichFileType::class, [
                 'label' => 'Select File',
-                'required' => true,
+                'required' => false,
                 'allow_delete' => false,
                 'download_uri' => false,
                 'attr' => [
                     'class' => 'form-control'
                 ],
-                'help' => 'Upload file (max 50MB). Supported formats: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, ZIP',
+                'help' => 'Upload file (max 50MB). Supported formats: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, ZIP. Leave blank to keep existing file.',
                 'constraints' => [
                     new Assert\File([
                         'maxSize' => '50M',

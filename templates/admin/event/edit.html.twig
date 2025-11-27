@@ -156,6 +156,47 @@
                             </div>
                         </div>
                         
+                        <!-- Event Files -->
+                        <div class="row" id="event-files">
+                            <div class="col-12 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="bi bi-file-earmark-text text-primary"></i>
+                                            Event Materials
+                                        </h6>
+                                        <p class="small text-muted mb-3">Upload files that will be available to event attendees (documents, images, presentations, etc.)</p>
+                                        
+                                        <div class="files-container">
+                                            <div id="file-collection" data-prototype="{{ form_widget(form.files.vars.prototype)|e('html_attr') }}">
+                                                {% for fileForm in form.files %}
+                                                    <div class="file-item card mb-3">
+                                                        <div class="card-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <h6 class="mb-0">File #{{ loop.index }}</h6>
+                                                                <button type="button" class="btn btn-outline-danger btn-sm remove-file">
+                                                                    <i class="bi bi-trash"></i> Remove
+                                                                </button>
+                                                            </div>
+                                                            <div class="file-form">
+                                                                {{ form_widget(fileForm) }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-flex gap-2 mt-3">
+                                            <button type="button" class="btn btn-outline-primary btn-sm add-file">
+                                                <i class="bi bi-plus-circle"></i> Add File
+                                                </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="row">
                             <div class="col-12 mb-3">
                                 <div class="card bg-light">
@@ -414,6 +455,86 @@ document.addEventListener('DOMContentLoaded', function() {
         attachRemoveListeners();
     }
     
+    // Handle file collection
+    const fileCollection = document.querySelector('#file-collection');
+    const addFileBtn = document.querySelector('.add-file');
+    
+    if (fileCollection && addFileBtn) {
+        // Get the current number of files
+        let fileIndex = fileCollection.querySelectorAll('.file-item').length;
+        
+        addFileBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get the prototype from the data attribute
+            const prototype = fileCollection.getAttribute('data-prototype');
+            if (!prototype) {
+                console.error('File collection prototype not found');
+                return;
+            }
+            
+            // Replace the prototype name with the current index
+            let newForm = prototype.replace(/__file_prototype__/g, fileIndex);
+            
+            // Create a wrapper div for the new file form
+            const wrapperDiv = document.createElement('div');
+            wrapperDiv.className = 'file-item card mb-3';
+            wrapperDiv.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">File #${fileIndex + 1}</h6>
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-file">
+                            <i class="bi bi-trash"></i> Remove
+                        </button>
+                    </div>
+                    <div class="file-form">
+                        ${newForm}
+                    </div>
+                </div>
+            `;
+            
+            // Add the new form to the collection
+            fileCollection.appendChild(wrapperDiv);
+            
+            // Add remove functionality to the new item
+            wrapperDiv.querySelector('.remove-file').addEventListener('click', function() {
+                wrapperDiv.remove();
+                updateFileNumbers();
+            });
+            
+            fileIndex++;
+            updateFileNumbers();
+        });
+        
+        // Add remove functionality to existing items
+        function attachFileRemoveListeners() {
+            document.querySelectorAll('.remove-file').forEach(function(btn) {
+                btn.replaceWith(btn.cloneNode(true)); // Remove existing listeners
+            });
+            
+            document.querySelectorAll('.remove-file').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    btn.closest('.file-item').remove();
+                    updateFileNumbers();
+                });
+            });
+        }
+        
+        // Update file numbers
+        function updateFileNumbers() {
+            const fileItems = fileCollection.querySelectorAll('.file-item');
+            fileItems.forEach(function(item, index) {
+                const header = item.querySelector('h6');
+                if (header) {
+                    header.textContent = `File #${index + 1}`;
+                }
+            });
+        }
+        
+        // Initialize existing items
+        attachFileRemoveListeners();
+    }
+    
     // Fallback function to create presenter form manually
     function createManualPresenterForm(index) {
         return `
@@ -482,16 +603,20 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-.presenter-item {
+.presenter-item,
+.file-item {
     border: 1px solid #dee2e6;
 }
 
 .presenter-item .form-control,
-.presenter-item .form-select {
+.presenter-item .form-select,
+.file-item .form-control,
+.file-item .form-select {
     margin-bottom: 0.75rem;
 }
 
-.presenter-form .row {
+.presenter-form .row,
+.file-form .row {
     margin-bottom: 0.75rem;
 }
 </style>
