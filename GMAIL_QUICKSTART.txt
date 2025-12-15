@@ -1,0 +1,118 @@
+================================================================================
+                    GMAIL SETUP - QUICK REFERENCE
+================================================================================
+
+STEP 1: Enable 2-Factor Authentication
+---------------------------------------
+1. Go to: https://myaccount.google.com/security
+2. Click "2-Step Verification"
+3. Follow setup instructions
+
+STEP 2: Generate App Password
+------------------------------
+1. Go to: https://myaccount.google.com/apppasswords
+2. Select: App = "Mail", Device = "Other (Custom name)"
+3. Name it: "Event Management System"
+4. Click "Generate"
+5. COPY THE 16-CHARACTER PASSWORD (shown only once!)
+
+STEP 3: Configure Server
+-------------------------
+SSH to server:
+    ssh user@events.bayworx.com
+
+Edit .env file:
+    cd /var/www/events.bayworx.com
+    nano .env
+
+Update these lines:
+    MAILER_DSN=gmail+smtp://YOUR_EMAIL@gmail.com:YOUR_APP_PASSWORD@default
+    MAILER_FROM_EMAIL=YOUR_EMAIL@gmail.com
+    MAILER_FROM_NAME="Bayworx Events"
+
+Example:
+    MAILER_DSN=gmail+smtp://john@bayworx.com:abcdwxyzefghijkl@default
+    MAILER_FROM_EMAIL=john@bayworx.com
+    MAILER_FROM_NAME="Bayworx Events"
+
+Important: 
+    - Remove ALL spaces from app password
+    - App password is 16 characters, lowercase letters only
+    - Do NOT use your regular Gmail password
+
+STEP 4: Clear Cache
+--------------------
+    php bin/console cache:clear --env=prod
+
+STEP 5: Test Email
+-------------------
+    php bin/console app:test-email your-email@example.com
+
+If successful, you should receive a test email!
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+ERROR: "Username and Password not accepted"
+-------------------------------------------
+✓ Make sure 2FA is enabled
+✓ Use App Password, NOT regular password
+✓ Remove all spaces from app password
+✓ Password is 16 characters, all lowercase
+
+ERROR: "Connection timeout"
+---------------------------
+✓ Check firewall: sudo ufw allow out 587/tcp
+✓ Test connection: telnet smtp.gmail.com 587
+
+ERROR: Email not received
+-------------------------
+✓ Check spam/junk folder
+✓ Wait a few minutes
+✓ Check logs: tail -f var/log/prod.log
+
+GMAIL SENDING LIMITS
+--------------------
+Free Gmail:        500 emails/day
+Google Workspace:  2,000 emails/day
+
+================================================================================
+CONFIGURATION FILES
+================================================================================
+
+Main config:    /var/www/events.bayworx.com/.env
+Email templates: /var/www/events.bayworx.com/templates/emails/
+Logs:           /var/www/events.bayworx.com/var/log/prod.log
+
+================================================================================
+USEFUL COMMANDS
+================================================================================
+
+Test email:
+    php bin/console app:test-email your@email.com
+
+View logs:
+    tail -f var/log/prod.log
+
+Clear cache:
+    php bin/console cache:clear --env=prod
+
+List all commands:
+    php bin/console list
+
+================================================================================
+SECURITY CHECKLIST
+================================================================================
+
+✓ 2FA enabled on Gmail
+✓ Using App Password (not regular password)
+✓ .env file has correct permissions (chmod 600)
+✓ Never commit .env to git
+✓ Test email sent successfully
+✓ Registration emails working
+✓ Password reset emails working
+
+================================================================================
+For detailed instructions, see: GMAIL_SETUP.md
+================================================================================
