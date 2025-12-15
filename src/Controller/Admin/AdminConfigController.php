@@ -9,6 +9,8 @@ use App\Form\FooterSettingsType;
 use App\Service\ApplicationLogger;
 use App\Service\ConfigurationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email as MimeEmail;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +25,8 @@ class AdminConfigController extends AbstractController
     public function __construct(
         private ConfigurationService $configService,
         private SluggerInterface $slugger,
-        private ApplicationLogger $appLogger
+        private ApplicationLogger $appLogger,
+        private MailerInterface $mailer
     ) {
     }
 
@@ -212,9 +215,146 @@ class AdminConfigController extends AbstractController
             return $this->redirectToRoute('admin_config_email');
         }
         
+        // Get current MAILER_DSN configuration
+        $mailerDsn = $_ENV['MAILER_DSN'] ?? 'Not configured';
+        $mailerFromEmail = $_ENV['MAILER_FROM_EMAIL'] ?? 'Not configured';
+        
+        // Parse DSN to show user-friendly info
+        $emailConfig = $this->parseMailerDsn($mailerDsn);
+        
         return $this->render('admin/config/email.html.twig', [
             'form' => $form->createView(),
+            'mailer_config' => $emailConfig,
+            'mailer_from_email' => $mailerFromEmail,
         ]);
+    }
+
+    #[Route('/email/test', name: 'admin_config_email_test', methods: ['POST'])]
+    public function testEmail(Request $request): Response
+    {
+        $testEmail = $request->request->get('test_email');
+        
+        if (!$testEmail || !filter_var($testEmail, FILTER_VALIDATE_EMAIL)) {
+            $this->addFlash('error', 'Please provide a valid email address.');
+            return $this->redirectToRoute('admin_config_email');
+        }
+        
+        try {
+            $email = (new MimeEmail())
+                ->from($_ENV['MAILER_FROM_EMAIL'] ?? 'noreply@example.com')
+                ->to($testEmail)
+                ->subject('Test Email - Event Management System')
+                ->html($this->getTestEmailHtml());
+            
+            $this->mailer->send($email);
+            
+            $this->addFlash('success', sprintf('Test email sent successfully to %s! Check your inbox (and spam folder).', $testEmail));
+            
+            // Log the test
+            $this->appLogger->logAuditEvent(
+                'email_configuration_tested',
+                $this->getUser(),
+                ['recipient' => $testEmail, 'status' => 'success']
+            );
+        } catch (\Exception $e) {
+            $this->addFlash('error', sprintf('Failed to send test email: %s', $e->getMessage()));
+            
+            // Log the failure
+            $this->appLogger->logAuditEvent(
+                'email_configuration_test_failed',
+                $this->getUser(),
+                ['recipient' => $testEmail, 'error' => $e->getMessage()]
+            );
+        }
+        
+        return $this->redirectToRoute('admin_config_email');
+    }
+
+    private function parseMailerDsn(string $dsn): array
+    {
+        if ($dsn === 'Not configured') {
+            return [
+                'transport' => 'Not configured',
+                'status' => 'warning',
+                'message' => 'Email not configured. Set MAILER_DSN in .env file.'
+            ];
+        }
+        
+        // Parse DSN format: transport://user:password@host:port
+        if (str_contains($dsn, 'gmail')) {
+            return [
+                'transport' => 'Gmail SMTP',
+                'status' => 'success',
+                'message' => 'Using Gmail for email delivery'
+            ];
+        } elseif (str_contains($dsn, 'sendgrid')) {
+            return [
+                'transport' => 'SendGrid',
+                'status' => 'success',
+                'message' => 'Using SendGrid for email delivery'
+            ];
+        } elseif (str_contains($dsn, 'mailgun')) {
+            return [
+                'transport' => 'Mailgun',
+                'status' => 'success',
+                'message' => 'Using Mailgun for email delivery'
+            ];
+        } elseif (str_contains($dsn, 'smtp')) {
+            return [
+                'transport' => 'SMTP',
+                'status' => 'success',
+                'message' => 'Using custom SMTP server'
+            ];
+        } elseif (str_contains($dsn, 'null')) {
+            return [
+                'transport' => 'Null (Dev)',
+                'status' => 'info',
+                'message' => 'Email disabled - using null transport (development mode)'
+            ];
+        }
+        
+        return [
+            'transport' => 'Unknown',
+            'status' => 'warning',
+            'message' => 'Email transport configured but type is unknown'
+        ];
+    }
+
+    private function getTestEmailHtml(): string
+    {
+        return <<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #f8f9fa; padding: 30px; border: 1px solid #e9ecef; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .footer { background: #e9ecef; padding: 20px; text-align: center; font-size: 12px; color: #6c757d; border-radius: 0 0 8px 8px; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1 style="margin: 0;">✅ Email Test Successful</h1></div>
+    <div class="content">
+        <div class="success"><strong>Success!</strong> Your email configuration is working correctly.</div>
+        <p>This is a test email from your <strong>Event Management System</strong> admin panel.</p>
+        <p>If you received this email, your system is ready to send:</p>
+        <ul>
+            <li>Event registration verification emails</li>
+            <li>Password reset emails</li>
+            <li>Attendee login links</li>
+            <li>Admin notifications</li>
+        </ul>
+    </div>
+    <div class="footer">
+        <p><strong>Event Management System</strong></p>
+        <p>This is an automated test email from the admin panel.</p>
+    </div>
+</body>
+</html>
+HTML;
     }
 
     #[Route('/footer', name: 'admin_config_footer', methods: ['GET', 'POST'])]
