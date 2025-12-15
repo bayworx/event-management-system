@@ -52,6 +52,108 @@
     </div>
 
     <div class="row">
+        <!-- Gmail Configuration Panel -->
+        <div class="col-lg-8 col-xl-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-google me-2"></i>
+                        <h5 class="card-title mb-0">Gmail / Google Workspace Configuration</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Setup Instructions:</strong>
+                        <ol class="mb-0 mt-2 small">
+                            <li>Enable 2FA on your Gmail account: <a href="https://myaccount.google.com/security" target="_blank">Security Settings</a></li>
+                            <li>Generate App Password: <a href="https://myaccount.google.com/apppasswords" target="_blank">App Passwords</a></li>
+                            <li>Select "Mail" and "Other (Custom name)"</li>
+                            <li>Copy the 16-character password and paste below</li>
+                        </ol>
+                    </div>
+                    
+                    <form method="post" action="{{ path('admin_config_gmail') }}" id="gmailConfigForm">
+                        <div class="mb-3">
+                            <label for="from_name" class="form-label">From Name</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="from_name" 
+                                   name="from_name" 
+                                   placeholder="Bayworx Events" 
+                                   value="{{ mailer_from_name ?? 'Event Management System' }}">
+                            <small class="text-muted">The name that appears in email "From" field</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="gmail_email" class="form-label">Gmail Address <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="gmail_email" 
+                                       name="gmail_email" 
+                                       placeholder="your-email@gmail.com" 
+                                       required
+                                       value="{{ mailer_from_email != 'Not configured' ? mailer_from_email : '' }}">
+                            </div>
+                            <small class="text-muted">Your Gmail or Google Workspace email address</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="gmail_password" class="form-label">Gmail App Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="gmail_password" 
+                                       name="gmail_password" 
+                                       placeholder="abcd efgh ijkl mnop" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">16-character app password (spaces will be removed automatically)</small>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Important:</strong>
+                            <ul class="mb-0 small mt-1">
+                                <li>Use an <strong>App Password</strong>, NOT your regular Gmail password</li>
+                                <li>2-Factor Authentication must be enabled first</li>
+                                <li>This will update your .env file (backup created automatically)</li>
+                                <li>Cache will need to be cleared after saving</li>
+                            </ul>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-google"></i> Save Gmail Configuration
+                        </button>
+                    </form>
+                    
+                    <hr class="my-3">
+                    
+                    <!-- Cache Clear Button -->
+                    <form method="post" action="{{ path('admin_config_clear_cache') }}" class="mb-2">
+                        <input type="hidden" name="_token" value="{{ csrf_token('clear_cache') }}">
+                        <button type="submit" class="btn btn-warning btn-sm w-100">
+                            <i class="bi bi-arrow-clockwise"></i> Clear Cache (Run after saving configuration)
+                        </button>
+                    </form>
+                    
+                    <div class="text-center">
+                        <small class="text-muted">
+                            Need help? See the 
+                            <a href="{{ asset('GMAIL_SETUP.md') }}" target="_blank">Detailed Setup Guide</a> or 
+                            <a href="{{ asset('GMAIL_QUICKSTART.txt') }}" target="_blank">Quick Start Guide</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Email Test Panel -->
         <div class="col-lg-8 col-xl-6 mb-4">
             <div class="card border-0 shadow-sm">
@@ -254,6 +356,39 @@
             if (signatureInput && previewSignature) {
                 signatureInput.addEventListener('input', function() {
                     previewSignature.innerHTML = this.value || 'Best regards,<br>The Team';
+                });
+            }
+            
+            // Password toggle for Gmail configuration
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('gmail_password');
+            
+            if (togglePassword && passwordInput) {
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    
+                    const icon = this.querySelector('i');
+                    if (type === 'password') {
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    } else {
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    }
+                });
+            }
+            
+            // Gmail configuration form validation
+            const gmailForm = document.getElementById('gmailConfigForm');
+            if (gmailForm) {
+                gmailForm.addEventListener('submit', function(e) {
+                    const password = passwordInput.value.replace(/\s/g, '');
+                    if (password.length !== 16) {
+                        e.preventDefault();
+                        alert('Gmail App Password should be 16 characters long (spaces will be removed automatically).');
+                        return false;
+                    }
                 });
             }
         });

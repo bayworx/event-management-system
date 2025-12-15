@@ -218,6 +218,7 @@ class AdminConfigController extends AbstractController
         // Get current MAILER_DSN configuration
         $mailerDsn = $_ENV['MAILER_DSN'] ?? 'Not configured';
         $mailerFromEmail = $_ENV['MAILER_FROM_EMAIL'] ?? 'Not configured';
+        $mailerFromName = $_ENV['MAILER_FROM_NAME'] ?? 'Event Management System';
         
         // Parse DSN to show user-friendly info
         $emailConfig = $this->parseMailerDsn($mailerDsn);
@@ -226,6 +227,7 @@ class AdminConfigController extends AbstractController
             'form' => $form->createView(),
             'mailer_config' => $emailConfig,
             'mailer_from_email' => $mailerFromEmail,
+            'mailer_from_name' => $mailerFromName,
         ]);
     }
 
@@ -264,6 +266,99 @@ class AdminConfigController extends AbstractController
                 'email_configuration_test_failed',
                 $this->getUser(),
                 ['recipient' => $testEmail, 'error' => $e->getMessage()]
+            );
+        }
+        
+        return $this->redirectToRoute('admin_config_email');
+    }
+
+    #[Route('/email/gmail-config', name: 'admin_config_gmail', methods: ['POST'])]
+    public function configureGmail(Request $request): Response
+    {
+        $gmailEmail = $request->request->get('gmail_email');
+        $gmailPassword = $request->request->get('gmail_password');
+        $fromName = $request->request->get('from_name');
+        
+        if (empty($gmailEmail) || !filter_var($gmailEmail, FILTER_VALIDATE_EMAIL)) {
+            $this->addFlash('error', 'Please provide a valid Gmail address.');
+            return $this->redirectToRoute('admin_config_email');
+        }
+        
+        if (empty($gmailPassword)) {
+            $this->addFlash('error', 'Please provide your Gmail App Password.');
+            return $this->redirectToRoute('admin_config_email');
+        }
+        
+        if (empty($fromName)) {
+            $fromName = 'Event Management System';
+        }
+        
+        try {
+            // Update .env file
+            $envPath = $this->getParameter('kernel.project_dir') . '/.env';
+            
+            if (!file_exists($envPath)) {
+                throw new \Exception('.env file not found');
+            }
+            
+            // Read current .env content
+            $envContent = file_get_contents($envPath);
+            
+            // Remove spaces from app password
+            $cleanPassword = str_replace(' ', '', $gmailPassword);
+            
+            // Prepare new DSN
+            $newDsn = sprintf('gmail+smtp://%s:%s@default', $gmailEmail, $cleanPassword);
+            
+            // Update or add MAILER_DSN
+            if (preg_match('/^MAILER_DSN=.*$/m', $envContent)) {
+                $envContent = preg_replace('/^MAILER_DSN=.*$/m', 'MAILER_DSN=' . $newDsn, $envContent);
+            } else {
+                $envContent .= "\nMAILER_DSN=" . $newDsn;
+            }
+            
+            // Update or add MAILER_FROM_EMAIL
+            if (preg_match('/^MAILER_FROM_EMAIL=.*$/m', $envContent)) {
+                $envContent = preg_replace('/^MAILER_FROM_EMAIL=.*$/m', 'MAILER_FROM_EMAIL=' . $gmailEmail, $envContent);
+            } else {
+                $envContent .= "\nMAILER_FROM_EMAIL=" . $gmailEmail;
+            }
+            
+            // Update or add MAILER_FROM_NAME
+            if (preg_match('/^MAILER_FROM_NAME=.*$/m', $envContent)) {
+                $envContent = preg_replace('/^MAILER_FROM_NAME=.*$/m', 'MAILER_FROM_NAME="' . $fromName . '"', $envContent);
+            } else {
+                $envContent .= "\nMAILER_FROM_NAME=\"" . $fromName . "\"";
+            }
+            
+            // Backup current .env
+            $backupPath = $envPath . '.backup.' . date('YmdHis');
+            copy($envPath, $backupPath);
+            
+            // Write new content
+            file_put_contents($envPath, $envContent);
+            
+            // Also update config service
+            $this->configService->set('email.from_email', $gmailEmail);
+            $this->configService->set('email.from_name', $fromName);
+            
+            // Log the configuration change
+            $this->appLogger->logAuditEvent(
+                'gmail_configuration_updated',
+                $this->getUser(),
+                ['email' => $gmailEmail, 'from_name' => $fromName]
+            );
+            
+            $this->addFlash('success', 'Gmail configuration saved successfully! Please clear cache for changes to take effect.');
+            $this->addFlash('info', sprintf('Backup created: %s', basename($backupPath)));
+            
+        } catch (\Exception $e) {
+            $this->addFlash('error', sprintf('Failed to save Gmail configuration: %s', $e->getMessage()));
+            
+            $this->appLogger->logAuditEvent(
+                'gmail_configuration_failed',
+                $this->getUser(),
+                ['error' => $e->getMessage()]
             );
         }
         
