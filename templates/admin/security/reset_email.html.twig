@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background: #f8f9fa;
+            padding: 30px;
+            border: 1px solid #e9ecef;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            background: #e9ecef;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            border-radius: 0 0 8px 8px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background: #d1ecf1;
+            border: 1px solid #0c5460;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 style="margin: 0;">🔐 Password Reset Request</h1>
+    </div>
+    
+    <div class="content">
+        <p>Hello {{ admin.name }},</p>
+        
+        <p>We received a request to reset the password for your administrator account associated with <strong>{{ admin.email }}</strong>.</p>
+        
+        <p>Click the button below to reset your password:</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ reset_url }}" class="button">Reset My Password</a>
+        </div>
+        
+        <div class="info-box">
+            <strong>⏰ Important:</strong> This password reset link will expire in <strong>1 hour</strong> for security reasons.
+        </div>
+        
+        <p>If the button above doesn't work, you can copy and paste the following link into your browser:</p>
+        <p style="word-break: break-all; background: #fff; padding: 10px; border: 1px solid #dee2e6; border-radius: 4px;">
+            {{ reset_url }}
+        </p>
+        
+        <div class="warning">
+            <strong>⚠️ Didn't request this?</strong><br>
+            If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
+        </div>
+        
+        <p>For security reasons, we recommend:</p>
+        <ul>
+            <li>Using a strong, unique password</li>
+            <li>Not sharing your password with anyone</li>
+            <li>Changing your password regularly</li>
+        </ul>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Event Management System - Administrator Portal</strong></p>
+        <p>This is an automated email. Please do not reply to this message.</p>
+        <p>&copy; {{ 'now'|date('Y') }} Event Management System. All rights reserved.</p>
+    </div>
+</body>
+</html>

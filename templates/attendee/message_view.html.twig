@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ message.subject }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-chat-text"></i> Message Details</h2>
+                    <p class="text-muted mb-0">{{ attendee.event.title }}</p>
+                </div>
+                <div>
+                    <a href="{{ path('attendee_messages') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Messages
+                    </a>
+                </div>
+            </div>
+
+            <!-- Conversation Thread -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-1">{{ message.subject }}</h5>
+                    <small>
+                        {% if message.status == 'replied' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-reply-fill"></i> Replied
+                            </span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">
+                                <i class="bi bi-send"></i> Sent
+                            </span>
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="card-body">
+                    {% for msg in thread %}
+                        <div class="message-item mb-4 pb-4 {% if not loop.last %}border-bottom{% endif %}">
+                            <!-- Message Header -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center">
+                                    {% if msg.sender == attendee %}
+                                        <!-- Message from attendee (you) -->
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 40px; height: 40px; font-size: 1.2rem;">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">You</h6>
+                                            <small class="text-muted">{{ msg.sentAt|date('F j, Y \\a\\t g:i A') }}</small>
+                                        </div>
+                                    {% else %}
+                                        <!-- Reply from admin -->
+                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 40px; height: 40px; font-size: 1.2rem;">
+                                            <i class="bi bi-headset"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0">Event Organizer</h6>
+                                            <small class="text-muted">{{ msg.sentAt|date('F j, Y \\a\\t g:i A') }}</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% if msg.isReply %}
+                                    <span class="badge bg-secondary">
+                                        <i class="bi bi-reply"></i> Reply
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Message Content -->
+                            <div class="ms-5 ps-2">
+                                <div class="p-3 bg-light rounded">
+                                    {{ msg.content|nl2br }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Status Information -->
+            <div class="alert alert-info mt-3">
+                <i class="bi bi-info-circle"></i> 
+                {% if message.status == 'replied' %}
+                    The event organizers have replied to your message. You can see their response above.
+                {% else %}
+                    Your message has been sent to the event organizers. They will respond as soon as possible.
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <a href="{{ path('attendee_messages') }}" class="btn btn-primary">
+                    <i class="bi bi-inbox"></i> View All Messages
+                </a>
+                <a href="{{ path('event_show', {slug: attendee.event.slug}) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-calendar-event"></i> Back to Event
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .message-item {
+        animation: fadeIn 0.3s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}

@@ -55,6 +55,12 @@ class Administrator implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $department = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $passwordResetToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $passwordResetTokenExpiresAt = null;
+
     public function __construct()
     {
         $this->managedEvents = new ArrayCollection();
@@ -234,6 +240,49 @@ class Administrator implements UserInterface, PasswordAuthenticatedUserInterface
     public function updateLastLogin(): void
     {
         $this->lastLoginAt = new \DateTime();
+    }
+
+    public function getPasswordResetToken(): ?string
+    {
+        return $this->passwordResetToken;
+    }
+
+    public function setPasswordResetToken(?string $passwordResetToken): static
+    {
+        $this->passwordResetToken = $passwordResetToken;
+        return $this;
+    }
+
+    public function getPasswordResetTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->passwordResetTokenExpiresAt;
+    }
+
+    public function setPasswordResetTokenExpiresAt(?\DateTimeInterface $passwordResetTokenExpiresAt): static
+    {
+        $this->passwordResetTokenExpiresAt = $passwordResetTokenExpiresAt;
+        return $this;
+    }
+
+    public function generatePasswordResetToken(): void
+    {
+        $this->passwordResetToken = bin2hex(random_bytes(32));
+        $this->passwordResetTokenExpiresAt = new \DateTime('+1 hour');
+    }
+
+    public function isPasswordResetTokenValid(): bool
+    {
+        if (!$this->passwordResetToken || !$this->passwordResetTokenExpiresAt) {
+            return false;
+        }
+
+        return $this->passwordResetTokenExpiresAt > new \DateTime();
+    }
+
+    public function clearPasswordResetToken(): void
+    {
+        $this->passwordResetToken = null;
+        $this->passwordResetTokenExpiresAt = null;
     }
 
     public function __toString(): string

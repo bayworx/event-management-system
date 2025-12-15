@@ -208,62 +208,263 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
-                            <i class="bi bi-calendar2-event"></i> Event Agenda
+                            <i class="bi bi-calendar2-event"></i> Event Timeline
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="agenda-timeline">
+                        <style>
+                            .timeline {
+                                position: relative;
+                                padding-left: 0;
+                            }
+                            
+                            .timeline-item {
+                                position: relative;
+                                padding-left: 150px;
+                                padding-bottom: 2.5rem;
+                            }
+                            
+                            .timeline-item:last-child {
+                                padding-bottom: 0;
+                            }
+                            
+                            .timeline-item::before {
+                                content: '';
+                                position: absolute;
+                                left: 120px;
+                                top: 20px;
+                                bottom: -15px;
+                                width: 2px;
+                                background: linear-gradient(to bottom, #e9ecef 0%, #e9ecef 100%);
+                            }
+                            
+                            .timeline-item:last-child::before {
+                                display: none;
+                            }
+                            
+                            .timeline-time {
+                                position: absolute;
+                                left: 0;
+                                top: 0;
+                                width: 100px;
+                                text-align: right;
+                                padding-right: 10px;
+                            }
+                            
+                            .timeline-marker {
+                                position: absolute;
+                                left: 110px;
+                                top: 8px;
+                                width: 20px;
+                                height: 20px;
+                                border-radius: 50%;
+                                border: 3px solid #fff;
+                                box-shadow: 0 0 0 2px #0d6efd;
+                                z-index: 1;
+                            }
+                            
+                            .timeline-marker.keynote {
+                                background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+                                box-shadow: 0 0 0 2px #dc3545;
+                            }
+                            
+                            .timeline-marker.workshop {
+                                background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
+                                box-shadow: 0 0 0 2px #fd7e14;
+                            }
+                            
+                            .timeline-marker.session {
+                                background: linear-gradient(135deg, #0d6efd 0%, #0257d5 100%);
+                                box-shadow: 0 0 0 2px #0d6efd;
+                            }
+                            
+                            .timeline-marker.break, .timeline-marker.lunch {
+                                background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+                                box-shadow: 0 0 0 2px #6c757d;
+                            }
+                            
+                            .timeline-marker.networking {
+                                background: linear-gradient(135deg, #20c997 0%, #199d76 100%);
+                                box-shadow: 0 0 0 2px #20c997;
+                            }
+                            
+                            .timeline-content {
+                                background: #fff;
+                                border: 1px solid #e9ecef;
+                                border-radius: 8px;
+                                padding: 1rem 1.25rem;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                                transition: all 0.2s ease;
+                            }
+                            
+                            .timeline-content:hover {
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                                transform: translateY(-2px);
+                            }
+                            
+                            .timeline-header {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items-start;
+                                margin-bottom: 0.75rem;
+                            }
+                            
+                            .timeline-title {
+                                font-size: 1.1rem;
+                                font-weight: 600;
+                                color: #212529;
+                                margin: 0;
+                            }
+                            
+                            .timeline-badge {
+                                font-size: 0.75rem;
+                                padding: 0.25rem 0.6rem;
+                                border-radius: 12px;
+                                font-weight: 600;
+                                white-space: nowrap;
+                            }
+                            
+                            .timeline-meta {
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 1rem;
+                                margin-bottom: 0.75rem;
+                                font-size: 0.9rem;
+                            }
+                            
+                            .timeline-meta-item {
+                                display: flex;
+                                align-items: center;
+                                color: #6c757d;
+                            }
+                            
+                            .timeline-meta-item i {
+                                margin-right: 0.4rem;
+                                color: #0d6efd;
+                            }
+                            
+                            .timeline-description {
+                                color: #495057;
+                                font-size: 0.95rem;
+                                line-height: 1.6;
+                                margin-top: 0.75rem;
+                                padding-top: 0.75rem;
+                                border-top: 1px solid #f8f9fa;
+                            }
+                            
+                            .duration-badge {
+                                display: inline-block;
+                                background: #f8f9fa;
+                                color: #495057;
+                                padding: 0.25rem 0.6rem;
+                                border-radius: 4px;
+                                font-size: 0.85rem;
+                                font-weight: 500;
+                            }
+                            
+                            @media (max-width: 768px) {
+                                .timeline-item {
+                                    padding-left: 60px;
+                                }
+                                
+                                .timeline-time {
+                                    width: 50px;
+                                    font-size: 0.8rem;
+                                    padding-right: 5px;
+                                }
+                                
+                                .timeline-marker {
+                                    left: 45px;
+                                    width: 16px;
+                                    height: 16px;
+                                    top: 10px;
+                                }
+                                
+                                .timeline-item::before {
+                                    left: 54px;
+                                }
+                                
+                                .timeline-content {
+                                    padding: 0.75rem 1rem;
+                                }
+                                
+                                .timeline-title {
+                                    font-size: 1rem;
+                                }
+                            }
+                        </style>
+                        
+                        <div class="timeline">
                             {% for agendaItem in visibleAgenda %}
-                                <div class="agenda-item d-flex mb-4 pb-4 {% if not loop.last %}border-bottom{% endif %}">
-                                    <div class="agenda-time flex-shrink-0 me-4">
+                                <div class="timeline-item">
+                                    <div class="timeline-time">
                                         {% if agendaItem.startTime %}
-                                            <div class="bg-primary text-white rounded px-3 py-2 text-center" style="min-width: 90px;">
-                                                <div class="fw-bold">{{ agendaItem.startTime|date('g:i A') }}</div>
-                                                {% if agendaItem.endTime %}
-                                                    <small>{{ agendaItem.endTime|date('g:i A') }}</small>
-                                                {% endif %}
-                                            </div>
+                                            <div class="fw-bold text-primary" style="font-size: 0.95rem;">{{ agendaItem.startTime|date('g:i A') }}</div>
+                                            {% if agendaItem.endTime %}
+                                                <small class="text-muted" style="font-size: 0.8rem;">{{ agendaItem.endTime|date('g:i A') }}</small>
+                                            {% endif %}
                                         {% else %}
-                                            <div class="bg-secondary text-white rounded px-3 py-2 text-center" style="min-width: 90px;">
-                                                <div class="fw-bold">TBD</div>
-                                            </div>
+                                            <div class="fw-bold text-muted" style="font-size: 0.9rem;">TBD</div>
                                         {% endif %}
                                     </div>
-                                    <div class="agenda-content flex-grow-1">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="mb-0">{{ agendaItem.title }}</h6>
+                                    
+                                    <div class="timeline-marker {{ agendaItem.itemType }}"></div>
+                                    
+                                    <div class="timeline-content">
+                                        <div class="timeline-header">
+                                            <h6 class="timeline-title">{{ agendaItem.title }}</h6>
                                             {% if agendaItem.itemType %}
-                                                <span class="badge bg-info">{{ agendaItem.itemType|title }}</span>
+                                                {% set badgeClass = 'bg-primary' %}
+                                                {% if agendaItem.itemType == 'keynote' %}
+                                                    {% set badgeClass = 'bg-danger' %}
+                                                {% elseif agendaItem.itemType == 'workshop' %}
+                                                    {% set badgeClass = 'bg-warning text-dark' %}
+                                                {% elseif agendaItem.itemType == 'break' or agendaItem.itemType == 'lunch' %}
+                                                    {% set badgeClass = 'bg-secondary' %}
+                                                {% elseif agendaItem.itemType == 'networking' %}
+                                                    {% set badgeClass = 'bg-success' %}
+                                                {% endif %}
+                                                <span class="timeline-badge {{ badgeClass }}">
+                                                    <i class="bi {{ agendaItem.itemTypeIcon }}"></i> {{ agendaItem.itemType|title }}
+                                                </span>
                                             {% endif %}
                                         </div>
                                         
-                                        {% if agendaItem.speaker %}
-                                            <div class="text-muted small mb-2">
-                                                <i class="bi bi-person me-1"></i>
-                                                <strong>Speaker:</strong> {{ agendaItem.speaker }}
-                                            </div>
-                                        {% endif %}
-                                        
-                                        {% if agendaItem.presenter %}
-                                            <div class="text-muted small mb-2">
-                                                <i class="bi bi-microphone me-1"></i>
-                                                <strong>Presenter:</strong> {{ agendaItem.presenter.name }}
-                                                {% if agendaItem.presenter.title %}
-                                                    ({{ agendaItem.presenter.title }})
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                        
-                                        {% if agendaItem.location %}
-                                            <div class="text-muted small mb-2">
-                                                <i class="bi bi-geo-alt me-1"></i>
-                                                <strong>Location:</strong> {{ agendaItem.location }}
-                                            </div>
-                                        {% endif %}
+                                        <div class="timeline-meta">
+                                            {% if agendaItem.durationInMinutes %}
+                                                <span class="duration-badge">
+                                                    <i class="bi bi-clock"></i> {{ agendaItem.durationInMinutes }} min
+                                                </span>
+                                            {% endif %}
+                                            
+                                            {% if agendaItem.speaker %}
+                                                <div class="timeline-meta-item">
+                                                    <i class="bi bi-person-fill"></i>
+                                                    <strong>{{ agendaItem.speaker }}</strong>
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if agendaItem.presenter %}
+                                                <div class="timeline-meta-item">
+                                                    <i class="bi bi-microphone-fill"></i>
+                                                    <strong>{{ agendaItem.presenter.name }}</strong>
+                                                    {% if agendaItem.presenter.title %}
+                                                        <span class="text-muted ms-1">({{ agendaItem.presenter.title }})</span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if agendaItem.location %}
+                                                <div class="timeline-meta-item">
+                                                    <i class="bi bi-geo-alt-fill"></i>
+                                                    {{ agendaItem.location }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
                                         
                                         {% if agendaItem.description %}
-                                            <div class="text-muted mt-2">
-                                                <p class="mb-0">{{ agendaItem.description|nl2br }}</p>
+                                            <div class="timeline-description">
+                                                {{ agendaItem.description|nl2br }}
                                             </div>
                                         {% endif %}
                                     </div>
@@ -371,6 +572,138 @@
                 </div>
             {% endif %}
 
+            <!-- WiFi Information -->
+            {% if user_is_attendee and wifi_qr_code and not event_deactivated %}
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="bi bi-wifi"></i> WiFi Access</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <img src="{{ wifi_qr_code }}" alt="WiFi QR Code" class="img-fluid" style="max-width: 200px;">
+                        </div>
+                        
+                        <div class="alert alert-info mb-3">
+                            <small><i class="bi bi-info-circle"></i> Scan with your phone's camera to connect automatically</small>
+                        </div>
+                        
+                        <div class="text-start">
+                            <h6 class="mb-2"><i class="bi bi-router"></i> Manual Connection</h6>
+                            <div class="mb-2">
+                                <strong class="text-muted small">Network Name (SSID):</strong>
+                                <div class="d-flex align-items-center">
+                                    <code class="bg-light px-2 py-1 rounded flex-grow-1" id="wifi-ssid">{{ wifi_info.ssid }}</code>
+                                    <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('wifi-ssid', this)" title="Copy SSID">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <strong class="text-muted small">Password:</strong>
+                                <div class="d-flex align-items-center">
+                                    <code class="bg-light px-2 py-1 rounded flex-grow-1" id="wifi-password">{{ wifi_info.password }}</code>
+                                    <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyToClipboard('wifi-password', this)" title="Copy Password">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <strong class="text-muted small">Security:</strong>
+                                <div>
+                                    <span class="badge bg-secondary">{{ wifi_info.security }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    function copyToClipboard(elementId, button) {
+                        const element = document.getElementById(elementId);
+                        const text = element.textContent;
+                        
+                        navigator.clipboard.writeText(text).then(function() {
+                            // Change icon to checkmark
+                            const icon = button.querySelector('i');
+                            const originalClass = icon.className;
+                            icon.className = 'bi bi-check';
+                            button.classList.remove('btn-outline-secondary');
+                            button.classList.add('btn-success');
+                            
+                            // Reset after 2 seconds
+                            setTimeout(function() {
+                                icon.className = originalClass;
+                                button.classList.remove('btn-success');
+                                button.classList.add('btn-outline-secondary');
+                            }, 2000);
+                        }).catch(function(err) {
+                            console.error('Failed to copy: ', err);
+                        });
+                    }
+                </script>
+            {% endif %}
+
+            <!-- Message Event Admins -->
+            {% if user_is_attendee and not event_deactivated %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-chat-dots"></i> Contact Event Organizers</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{{ path('attendee_message_send') }}" id="messageForm">
+                            <input type="hidden" name="return_url" value="{{ path('event_show', {slug: event.slug}) }}">
+                            
+                            <div class="mb-3">
+                                <label for="subject" class="form-label small fw-bold">Subject</label>
+                                <input type="text" class="form-control form-control-sm" id="subject" name="subject" 
+                                       placeholder="What is your question about?" required maxlength="255">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="content" class="form-label small fw-bold">Message</label>
+                                <textarea class="form-control form-control-sm" id="content" name="content" 
+                                          rows="4" placeholder="Type your message here..." required></textarea>
+                                <small class="text-muted">The event administrators will receive your message.</small>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-sm w-100">
+                                <i class="bi bi-send"></i> Send Message
+                            </button>
+                        </form>
+                        
+                        {% if attendee_messages|length > 0 %}
+                            <hr class="my-3">
+                            <h6 class="small fw-bold mb-2">Recent Messages</h6>
+                            <div class="list-group list-group-flush">
+                                {% for message in attendee_messages|slice(0, 3) %}
+                                    <a href="{{ path('attendee_message_view', {id: message.id}) }}" 
+                                       class="list-group-item list-group-item-action p-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1" style="min-width: 0;">
+                                                <div class="fw-bold small text-truncate">{{ message.subject }}</div>
+                                                <small class="text-muted">{{ message.sentAt|date('M j, g:i A') }}</small>
+                                            </div>
+                                            <span class="badge bg-{{ message.status == 'replied' ? 'success' : 'secondary' }} ms-2 flex-shrink-0">
+                                                {{ message.statusLabel }}
+                                            </span>
+                                        </div>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                            {% if attendee_messages|length > 3 %}
+                                <div class="text-center mt-2">
+                                    <a href="{{ path('attendee_messages') }}" class="btn btn-link btn-sm">
+                                        View All Messages ({{ attendee_messages|length }})
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
             <!-- Quick Login for Attendees -->
             {% if not app.user and not event_deactivated %}
                 <div class="card mb-4">
@@ -381,7 +714,7 @@
                             <div class="input-group">
                                 <input type="email" name="email" class="form-control form-control-sm" placeholder="your@email.com" required>
                                 <button type="submit" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-send"></i> Send Link
+                                    <i class="bi bi-send"></i> Login via Email 
                                 </button>
                             </div>
                         </form>

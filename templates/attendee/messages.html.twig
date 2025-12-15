@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Messages - {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-chat-dots"></i> My Messages</h2>
+                    <p class="text-muted">Communication with event organizers for {{ attendee.event.title }}</p>
+                </div>
+                <a href="{{ path('event_show', {slug: attendee.event.slug}) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Event
+                </a>
+            </div>
+
+            <!-- Send New Message Card -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Send New Message</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ path('attendee_message_send') }}">
+                        <input type="hidden" name="return_url" value="{{ path('attendee_messages') }}">
+                        
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" 
+                                   placeholder="What is your question about?" required maxlength="255">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Message</label>
+                            <textarea class="form-control" id="content" name="content" 
+                                      rows="5" placeholder="Type your message here..." required></textarea>
+                            <small class="text-muted">The event administrators will receive your message and respond as soon as possible.</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Messages List -->
+            {% if messages|length > 0 %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-inbox"></i> Message History</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% for message in messages %}
+                            <a href="{{ path('attendee_message_view', {id: message.id}) }}" 
+                               class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ message.subject }}</h6>
+                                        <p class="mb-1 text-muted small">{{ message.shortContent(150) }}</p>
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock"></i> {{ message.sentAt|date('F j, Y \\a\\t g:i A') }}
+                                        </small>
+                                    </div>
+                                    <div class="ms-3 text-end">
+                                        {% if message.status == 'replied' %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-reply-fill"></i> Replied
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-send"></i> Sent
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> You haven't sent any messages yet. Use the form above to contact the event organizers.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
