@@ -18,6 +18,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Vich\UploaderBundle\Handler\DownloadHandler;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
@@ -230,10 +231,10 @@ class EventController extends AbstractController
 
                     $isDevelopment = $params->get('kernel.environment') === 'dev';
                     if ($isDevelopment) {
-                        $verifyUrl = $this->generateUrl('attendee_email_verify', [
-                            'slug' => $existingAttendee->getEvent()->getSlug(),
-                            'token' => $existingAttendee->getEmailVerificationToken()
-                        ], true);
+                    $verifyUrl = $this->generateUrl('attendee_email_verify', [
+                        'slug' => $existingAttendee->getEvent()->getSlug(),
+                        'token' => $existingAttendee->getEmailVerificationToken()
+                    ], UrlGeneratorInterface::ABSOLUTE_URL);
                         $this->addFlash('warning', 'This email is already registered for this event.');
                         $this->addFlash('info', sprintf('Development mode: Click here to verify: <a href="%s">%s</a>', $verifyUrl, $verifyUrl));
                     } else {
@@ -252,7 +253,7 @@ class EventController extends AbstractController
                     $verifyUrl = $this->generateUrl('attendee_email_verify', [
                         'slug' => $attendee->getEvent()->getSlug(),
                         'token' => $attendee->getEmailVerificationToken()
-                    ], true);
+                    ], UrlGeneratorInterface::ABSOLUTE_URL);
                     $this->addFlash('success', 'Registration successful!');
                     $this->addFlash('info', sprintf('Development mode: Click here to verify: <a href="%s">%s</a>', $verifyUrl, $verifyUrl));
                 } else {
@@ -322,7 +323,7 @@ class EventController extends AbstractController
         $verifyUrl = $this->generateUrl('attendee_email_verify', [
             'slug' => $attendee->getEvent()->getSlug(),
             'token' => $attendee->getEmailVerificationToken()
-        ], true);
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         $event = $attendee->getEvent();
         $wifiQrCode = null;
