@@ -106,6 +106,15 @@ bin/console app:log-cleanup
 
 # Test database connection
 bin/console app:test-connection
+
+# Deactivate past events
+bin/console app:deactivate-past-events
+
+# Deactivate past events (dry run)
+bin/console app:deactivate-past-events --dry-run
+
+# Deactivate past events with grace period
+bin/console app:deactivate-past-events --grace-period=24
 ```
 
 ### Email & Messenger

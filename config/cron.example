@@ -1,0 +1,86 @@
+# Event Management System - Cron Job Examples
+#
+# To install:
+# 1. Edit this file with your actual paths
+# 2. Copy to crontab: crontab -e
+# 3. Add the desired cron jobs
+#
+# Tip: Test commands manually before adding to cron
+
+# ============================================================================
+# Event Deactivation - Automatically deactivate past events
+# ============================================================================
+
+# Run daily at 2:00 AM (recommended)
+0 2 * * * cd /home/jhill/event-management-system && /usr/bin/php bin/console app:deactivate-past-events >> /var/log/event-management/deactivate.log 2>&1
+
+# Run with 24-hour grace period (gives attendees time to download materials)
+# 0 2 * * * cd /home/jhill/event-management-system && /usr/bin/php bin/console app:deactivate-past-events --grace-period=24 >> /var/log/event-management/deactivate.log 2>&1
+
+# Run every 6 hours (for more frequent checks)
+# 0 */6 * * * cd /home/jhill/event-management-system && /usr/bin/php bin/console app:deactivate-past-events >> /var/log/event-management/deactivate.log 2>&1
+
+
+# ============================================================================
+# Log Cleanup - Remove old log files to save disk space
+# ============================================================================
+
+# Run weekly on Sunday at 3:00 AM
+0 3 * * 0 cd /home/jhill/event-management-system && /usr/bin/php bin/console app:log-cleanup >> /var/log/event-management/log-cleanup.log 2>&1
+
+# Custom retention: Keep regular logs for 14 days, security logs for 60 days
+# 0 3 * * 0 cd /home/jhill/event-management-system && /usr/bin/php bin/console app:log-cleanup --days=14 --security-days=60 >> /var/log/event-management/log-cleanup.log 2>&1
+
+
+# ============================================================================
+# Database Backup (Example - adjust for your backup solution)
+# ============================================================================
+
+# Run daily at 1:00 AM
+# 0 1 * * * /usr/bin/mysqldump -u dbuser -pPASSWORD event_management_db | gzip > /backup/event-management-$(date +\%Y\%m\%d).sql.gz
+
+
+# ============================================================================
+# Cache Warming (Optional - for production environments)
+# ============================================================================
+
+# Warm cache after deployments or at night for better morning performance
+# 0 1 * * * cd /home/jhill/event-management-system && /usr/bin/php bin/console cache:warmup --env=prod
+
+
+# ============================================================================
+# Messenger Worker Restart (If using async email)
+# ============================================================================
+
+# Restart messenger worker daily to prevent memory leaks
+# 0 0 * * * cd /home/jhill/event-management-system && /usr/bin/php bin/console messenger:stop-workers
+
+
+# ============================================================================
+# Health Check / Monitoring
+# ============================================================================
+
+# Test database connection every hour
+# 0 * * * * cd /home/jhill/event-management-system && /usr/bin/php bin/console app:test-connection >> /var/log/event-management/health.log 2>&1
+
+
+# ============================================================================
+# Notes:
+# ============================================================================
+# 
+# - Replace /home/jhill/event-management-system with your actual path
+# - Replace /usr/bin/php with result of: which php
+# - Create log directory: sudo mkdir -p /var/log/event-management
+# - Set permissions: sudo chown -R www-data:www-data /var/log/event-management
+# - Test commands manually before adding to cron
+# - Use absolute paths in cron (don't rely on PATH)
+# - Monitor cron execution: grep CRON /var/log/syslog
+#
+# Cron Schedule Format:
+# * * * * * command
+# │ │ │ │ │
+# │ │ │ │ └─── Day of week (0-7, Sunday = 0 or 7)
+# │ │ │ └───── Month (1-12)
+# │ │ └─────── Day of month (1-31)
+# │ └───────── Hour (0-23)
+# └─────────── Minute (0-59)
