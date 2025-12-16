@@ -1,0 +1,5 @@
+framework:
+    messenger:
+        routing:
+            # In production, send emails asynchronously to avoid blocking HTTP requests
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: async

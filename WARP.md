@@ -108,6 +108,28 @@ bin/console app:log-cleanup
 bin/console app:test-connection
 ```
 
+### Email & Messenger
+```bash
+# Check email queue status
+bin/console messenger:stats
+
+# Process queued emails (development)
+bin/console messenger:consume async --limit=100
+
+# Run messenger worker (keeps running)
+bin/console messenger:consume async -vv
+
+# View failed messages
+bin/console messenger:failed:show
+
+# Retry failed messages
+bin/console messenger:failed:retry
+
+# Note: In development, emails are sent synchronously (no queue)
+# In production, emails are queued and require a messenger worker
+# See docs/EMAIL_TROUBLESHOOTING.md for full details
+```
+
 ### Linting & Validation
 ```bash
 # Lint Twig templates
@@ -385,3 +407,5 @@ Custom extensions in `src/Twig/`:
 4. **Super Admin Check:** Always check `ROLE_SUPER_ADMIN` before filtering events by administrator
 5. **Form CSRF:** All forms have CSRF enabled - include `{{ form_row(form._token) }}` in custom form rendering
 6. **Event Slug URLs:** Use slug in routes, not ID: `/event/{slug}` not `/event/{id}`
+7. **Email Queue in Development:** By default, emails send synchronously in dev mode. If test emails fail silently, check `bin/console messenger:stats` - queued emails need processing with `bin/console messenger:consume async --limit=100`. See `docs/EMAIL_TROUBLESHOOTING.md`
+8. **Cache After Email Config:** Always run `bin/console cache:clear` after updating `.env` email settings for changes to take effect
